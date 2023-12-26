@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seisplot"
+
+dynamic = ["version"]
+
+authors = [
+  { name="Thomas Hertweck", email="Thomas.Hertweck@kit.edu" },
+]
+
+maintainers = [
+  { name="Thomas Hertweck", email="Thomas.Hertweck@kit.edu" },
+]
+
+description = "Plotting of seismic data"
+
+readme = "README.md"
+
+requires-python = ">=3.8"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: LGPL v3.0",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "numpy",
+  "matplotlib",
+]
+
+keywords = [
+  "seismic",
+  "display",
+  "image", "wiggle",
+  "variable-density",
+  "variable-area"
+]
+
+[project.urls]
+Repository = "https://gitlab.kit.edu/thomas.hertweck/seisplot"
+
+[tool.setuptools.dynamic]
+version = { attr = "seisplot.__version__" }
+
+[tool.setuptools]
+include-package-data = true
+
+package-dir = { "" = "./" }
+
+[tool.setuptools.package-data]
+"docs" = [ "*.html" ]
+
+"examples" = [ "*.ipynb", "data/README", "data/cmp.npy", "data/vmod.npy" ]
+

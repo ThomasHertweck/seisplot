@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>seisplot API documentation</title>
+<meta name="description" content="Plotting of seismic files …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>seisplot</code></h1>
+</header>
+<section id="section-intro">
+<p>Plotting of seismic files.</p>
+<p>The seisplot Python module provides basic functionality to display
+seismic data in typical standard image or wiggle displays.</p>
+<p>Author &amp; Copyright: Dr. Thomas Hertweck, KIT, Thomas.Hertweck@kit.edu</p>
+<p>License: GNU Lesser General Public License, Version 3
+<a href="https://www.gnu.org/licenses/lgpl-3.0.html">https://www.gnu.org/licenses/lgpl-3.0.html</a></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Plotting of seismic files.
+
+The seisplot Python module provides basic functionality to display
+seismic data in typical standard image or wiggle displays.
+
+Author &amp; Copyright: Dr. Thomas Hertweck, KIT, Thomas.Hertweck@kit.edu
+
+License: GNU Lesser General Public License, Version 3
+         https://www.gnu.org/licenses/lgpl-3.0.html
+&#34;&#34;&#34;
+
+__version__ = &#34;1.0.0&#34;
+__author__ = &#34;Thomas Hertweck&#34;
+__copyright__ = &#34;(c) 2024 Thomas Hertweck&#34;
+__license__ = &#34;GNU Lesser General Public License, Version 3&#34;
+
+from ._seisplt import SeisPlt
+
+
+def plot(data, **kwargs):
+    &#34;&#34;&#34;
+    Display seismic data in a highly configurable way.
+
+    Parameters
+    ----------
+    data : Numpy structured array or Numpy array
+        The seismic data to plot, either as Numpy structured array with
+        trace headers, or as plane Numpy array (just the traces&#39; amplitude
+        values). The actual array with seismic amplitudes should have
+        shape (ntraces, nsamples).
+    fig : mpl.figure.Figure, optional (default: None)
+        An existing Maplotlib figure to use. The default &#39;None&#39; creates
+        a new one.
+    ax : mpl.axes.Axes, optional (default: None)
+        An existing Matplotlib axes object to use for this plot. The
+        default &#39;None&#39; creates a new one.
+    plottype : str, optional (default: &#39;image&#39;)
+        The type of plot to create, either &#39;image&#39; (default) or &#39;wiggle&#39;.
+    width : float, optional (default: 6)
+        The width of the plot (inches).
+    height : float, optional (default: 10)
+        The height of the plot (inches).
+    perc : float, optional (default: 100)
+        The percentile to use when determining the clip values. The
+        default uses all the data. The value of &#39;perc&#39; must be in the
+        range (0, 100].
+    skip : int, optional (default: 1)
+        For wiggle plots, the number of traces to skip to reduce the total
+        number of traces to plot. Wiggle plots do not work well with a lot
+        of traces to plot. If this value is greater than 1, every skip&#39;th
+        trace will be plotted instead of all the traces.
+    xcur : float, optional (default: 1.0)
+        For wiggle plots, the wiggle excursion in traces corresponding to
+        the actual clip.
+    normalize : str, optional (default: None)
+        If set to &#39;trace&#39;, each trace will be normalized individually such
+        that its maximum amplitude is one. If set to &#39;section&#39;, the
+        entire section will be normalized such that its maximum is one.
+        The default &#39;None&#39; means no normalization is applied.
+    lowclip : float, optional (default: None)
+        Clip value at the lower end. Not to be used together with &#39;perc&#39;.
+        The default of &#39;None&#39; means the lowest data value is used.
+    highclip : float, optional (default: None)
+        Clip value at the upper end. Not to be used together with &#39;perc&#39;.
+        Must be larger than &#39;lowclip&#39; if both are given. The default of
+        &#39;None&#39; means the highest data value is used.
+    alpha : float, optional (default: 1.0)
+        The transparency of image plots or wiggle fills. Must be between
+        0 and 1. The default of 1 means no transparency.
+    tight : bool, optional (default: True)
+        Flag whether to apply matplotlib&#39;s tight layout.
+    interpolation : str, optional (default: &#39;bilinear&#39;)
+        The type of interpolation for image plots. See Matplotlib&#39;s
+        documentation for valid strings.
+    colormap : str, optional (default: &#39;seismic&#39;)
+        The colormap for image plots. See Matplotlib&#39;s documentation for
+        valid strings.
+    linewidth : float, optional (default: 0.2)
+        The width of lines in wiggle plots.
+    linecolor : str, optional (default: &#39;black&#39;)
+        The line color for wiggle plots.
+    facecolor : str, optional (default: &#39;white&#39;)
+        The background color of the actual plot area.
+    wiggledraw : bool, optional (default: True)
+        Whether to draw the wiggle trace.
+    wigglefill : bool, optional (default: True)
+        Whether to fill the wiggles. Setting both &#39;wiggledraw&#39; and
+        &#39;wigglefill&#39; to False leads to an empty plot.
+    wigglehires : bool, optional (default: False)
+        Whether to create an oversampled, high-resolution trace before
+        plotting it in plottype &#39;wiggle&#39;. This creates more accurate
+        shading for filled wiggles.
+    fillcolor : str, optional (default: &#39;black&#39;)
+        The color with which wiggles will be filled.
+    vaxis: numeric array, optional (default: None)
+        The values for the vertical axis (typically &#39;time&#39; or &#39;depth&#39;).
+        If not set, the sample number might be used.
+    vaxisbeg : float, optional (default: None)
+        The first value to draw on the vertical axis. Defaults to the first
+        value in &#39;vaxis&#39; if &#39;None&#39; is specified.
+    vaxisend : float, optional (default: None)
+        The last value to draw on the vertical axis. Defaults to the last
+        value in &#39;vaxis&#39; if &#39;None&#39; is specified.
+    vlabel : string, optional (default: None)
+        Label on vertical axis.
+    vlabelpos : string, optional  (default: &#39;center&#39;)
+        Position of vertical label, &#39;bottom&#39;, &#39;top&#39; or &#39;center&#39;.
+    haxis : numeric array or str, optional (default: None)
+        The values for the horizontal axis. If given, the array will be
+        used directly. If a string is given which should correspond to a
+        trace header mnemonic, then the values will be taken from the
+        ensemble&#39;s header table if available. As fallback, a simple
+        trace number counter is used.
+    haxisbeg : float, optional (default: None)
+        The first value to draw on the horizontal axis. Defaults to the
+        first value in &#39;haxis&#39; if &#39;None&#39; is specified.
+    haxisend : float, optional (default: None)
+        The last value to draw on the horizontal axis. Defaults to the
+        last value in &#39;haxis&#39; if &#39;None&#39; is specified.
+    hlabel : string, optional (default: None)
+        Label on horizontal axis.
+    hlabelpos : string, optional (default: &#39;center&#39;)
+        Position of horizontal label, &#39;left&#39;, &#39;right&#39; or &#39;center&#39;.
+    labelfontsize: int, optional (default: 12)
+        The font size for labels.
+    labelcolor: str, optional (default: &#39;black&#39;)
+        The color to use for labels.
+    vmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the vertical axis.
+        Defaults to Matplotlib&#39;s standard algorithm.
+    vminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the vertical axis.
+        Must be smaller than &#39;vmajorticks&#39;. Defaults to Matplotlib&#39;s
+        standard behavior.
+    hmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the horizontal axis.
+        Defaults to Matplotlib&#39;s standard algorithm.
+    hminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the horizontal axis.
+        Must be smaller than &#39;hmajorticks&#39;. Defaults to Matplotlib&#39;s
+        standard behavior.
+    majorticklength : float, optional (default: 6)
+        The length of major ticks.
+    minorticklength : float, optional (default: 4)
+        The length of minor ticks.
+    majortickwidth : float, optional (default: 1)
+        The width of major ticks.
+    minortickwidth : float, optional (default: 0.8)
+        The width of minor ticks.
+    ticklabelsize : int, optional (default: 10)
+        The font size of tick labels.
+    tickdirection : str, optional (default: &#39;out&#39;)
+        Draw ticks to the outside (&#39;out&#39;) or inside (&#39;in&#39;).
+    ticktop : boolean, optional (default: False)
+        Draw ticks and horizontal label at the top (True) instead of bottom
+        (False).
+    vticklabelrot : float, optional (default: 0)
+        Rotation angle of vertical tick labels (in degrees).
+    hticklabelrot : float, optional (default: 0)
+        Rotation angle of horizontal tick labels (in degrees).
+    vtickformat : str, optional (default: None)
+        The format to use for vertical tick labels. Defaults to
+        Matplotlib&#39;s standard behavior.
+    htickformat : str, optional (default: None)
+        The format to use for horizontal tick labels. Defaults to
+        Matplotlib&#39;s standard behavior.
+    vgrid : str, optional (default: None)
+        If &#39;None&#39;, no grid will be drawn. If set to &#39;major&#39;, a grid for
+        major ticks will be drawn. If set to &#39;both&#39;, a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the vertical axis, i.e., they are displayed horizontally.
+    hgrid : str, optional (default: None)
+        If &#39;None&#39;, no grid will be drawn. If set to &#39;major&#39;, a grid for
+        major ticks will be drawn. If set to &#39;both&#39;, a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the horizontal axis, i.e., they are displayed vertically.
+    gridlinewidth : float, optional (default: 0.8)
+        The linewidth of grid lines.
+    gridlinealpha : float, optional (default: 0.5)
+        The alpha (transparency) value for grid lines.
+    gridstyle : str, optional (default: &#39;-&#39;)
+        The style of grid lines. Defaults to solid. See Matplotlib&#39;s
+        documentation for valid options.
+    gridcolor : str, optional (default: &#39;black&#39;)
+        The color of grid lines.
+    colorbar : bool, optional (default: False)
+        Whether to draw a colorbar for image plots.
+    colorbarlabel : str, optional (default: None)
+        The label (typically indicating units) of the colorbar.
+    colorbarshrink : float, optional (default: 0.4)
+        The vertical scaling factor for the size of the colorbar.
+    colorbarfraction: float, optional (default: 0.1)
+        The horizontal fraction of the entire figure size that the colorbar
+        may use. Default is 10%.
+    colorbarpad : float, optional (default: 0.02)
+        Padding between the figure and the colorbar. Defaults to 2%.
+    colorbarlabelpad : float, optional (default: 0)
+        Padding applied between the colorbar and the colorbarlabel.
+    colorbarticklabelsize : int, optional (default: 10)
+        The font size of colorbar tick labels.
+    colorbarlabelsize : int, optional (default: 10)
+        The font size of the colorbar label.
+    colorbarbins : int,. optional (default: None)
+        The number of bins to use for determining colorbar ticks. The
+        default of &#39;None&#39; uses Matplotlib&#39;s standard behavior.
+    title : str, optional (default: None)
+        The title of the plot.
+    titlefontsize : int, optional (default: 14)
+        The fontsize for the title string.
+    titlecolor : str, optional (default: &#39;black&#39;)
+        The color used for the title.
+    titlepos : str, optional (default: &#39;center&#39;)
+        The position of the title, &#39;left&#39;, &#39;right&#39;, or &#39;center&#39;.
+    mnemonic_dt : str, optional (default: &#39;dt&#39;)
+        The trace header mnemonic specifying the sampling interval. Only used
+        when the traces are given as a Numpy structured array.
+    mnemonic_delrt: str, optional (default: &#39;delrt&#39;)
+        The trace header mnemonic specifying the delay recording time. Only
+        used when the traces are given as a Numpy structured array.
+    file : str, optional (default: None)
+        Produce an output file on disk using the specified file name. The
+        format of the output file is determined by the name&#39;s suffix.
+    dpi : int (default: &#39;figure&#39;)
+        The dots per inch to use for file output in non-vector graphics
+        formats. The special value &#39;figure&#39; (default) uses the figure&#39;s
+        dpi value.
+
+    Returns
+    -------
+    figure.Figure, axes.Axes
+        Matplotlib&#39;s figure.Figure and axes.Axes object.
+    &#34;&#34;&#34;
+    myplot = SeisPlt(data, **kwargs)
+    return myplot.show()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="seisplot.plot"><code class="name flex">
+<span>def <span class="ident">plot</span></span>(<span>data, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Display seismic data in a highly configurable way.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>Numpy structured array</code> or <code>Numpy array</code></dt>
+<dd>The seismic data to plot, either as Numpy structured array with
+trace headers, or as plane Numpy array (just the traces' amplitude
+values). The actual array with seismic amplitudes should have
+shape (ntraces, nsamples).</dd>
+<dt><strong><code>fig</code></strong> :&ensp;<code>mpl.figure.Figure</code>, optional <code>(default: None)</code></dt>
+<dd>An existing Maplotlib figure to use. The default 'None' creates
+a new one.</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>mpl.axes.Axes</code>, optional <code>(default: None)</code></dt>
+<dd>An existing Matplotlib axes object to use for this plot. The
+default 'None' creates a new one.</dd>
+<dt><strong><code>plottype</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'image')</code></dt>
+<dd>The type of plot to create, either 'image' (default) or 'wiggle'.</dd>
+<dt><strong><code>width</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
+<dd>The width of the plot (inches).</dd>
+<dt><strong><code>height</code></strong> :&ensp;<code>float</code>, optional <code>(default: 10)</code></dt>
+<dd>The height of the plot (inches).</dd>
+<dt><strong><code>perc</code></strong> :&ensp;<code>float</code>, optional <code>(default: 100)</code></dt>
+<dd>The percentile to use when determining the clip values. The
+default uses all the data. The value of 'perc' must be in the
+range (0, 100].</dd>
+<dt><strong><code>skip</code></strong> :&ensp;<code>int</code>, optional <code>(default: 1)</code></dt>
+<dd>For wiggle plots, the number of traces to skip to reduce the total
+number of traces to plot. Wiggle plots do not work well with a lot
+of traces to plot. If this value is greater than 1, every skip'th
+trace will be plotted instead of all the traces.</dd>
+<dt><strong><code>xcur</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1.0)</code></dt>
+<dd>For wiggle plots, the wiggle excursion in traces corresponding to
+the actual clip.</dd>
+<dt><strong><code>normalize</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If set to 'trace', each trace will be normalized individually such
+that its maximum amplitude is one. If set to 'section', the
+entire section will be normalized such that its maximum is one.
+The default 'None' means no normalization is applied.</dd>
+<dt><strong><code>lowclip</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>Clip value at the lower end. Not to be used together with 'perc'.
+The default of 'None' means the lowest data value is used.</dd>
+<dt><strong><code>highclip</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>Clip value at the upper end. Not to be used together with 'perc'.
+Must be larger than 'lowclip' if both are given. The default of
+'None' means the highest data value is used.</dd>
+<dt><strong><code>alpha</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1.0)</code></dt>
+<dd>The transparency of image plots or wiggle fills. Must be between
+0 and 1. The default of 1 means no transparency.</dd>
+<dt><strong><code>tight</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Flag whether to apply matplotlib's tight layout.</dd>
+<dt><strong><code>interpolation</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'bilinear')</code></dt>
+<dd>The type of interpolation for image plots. See Matplotlib's
+documentation for valid strings.</dd>
+<dt><strong><code>colormap</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'seismic')</code></dt>
+<dd>The colormap for image plots. See Matplotlib's documentation for
+valid strings.</dd>
+<dt><strong><code>linewidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.2)</code></dt>
+<dd>The width of lines in wiggle plots.</dd>
+<dt><strong><code>linecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The line color for wiggle plots.</dd>
+<dt><strong><code>facecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'white')</code></dt>
+<dd>The background color of the actual plot area.</dd>
+<dt><strong><code>wiggledraw</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Whether to draw the wiggle trace.</dd>
+<dt><strong><code>wigglefill</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Whether to fill the wiggles. Setting both 'wiggledraw' and
+'wigglefill' to False leads to an empty plot.</dd>
+<dt><strong><code>wigglehires</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Whether to create an oversampled, high-resolution trace before
+plotting it in plottype 'wiggle'. This creates more accurate
+shading for filled wiggles.</dd>
+<dt><strong><code>fillcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color with which wiggles will be filled.</dd>
+<dt><strong><code>vaxis</code></strong> :&ensp;<code>numeric array</code>, optional <code>(default: None)</code></dt>
+<dd>The values for the vertical axis (typically 'time' or 'depth').
+If not set, the sample number might be used.</dd>
+<dt><strong><code>vaxisbeg</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The first value to draw on the vertical axis. Defaults to the first
+value in 'vaxis' if 'None' is specified.</dd>
+<dt><strong><code>vaxisend</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The last value to draw on the vertical axis. Defaults to the last
+value in 'vaxis' if 'None' is specified.</dd>
+<dt><strong><code>vlabel</code></strong> :&ensp;<code>string</code>, optional <code>(default: None)</code></dt>
+<dd>Label on vertical axis.</dd>
+<dt><strong><code>vlabelpos</code></strong> :&ensp;<code>string</code>, optional
+<code>(default: 'center')</code></dt>
+<dd>Position of vertical label, 'bottom', 'top' or 'center'.</dd>
+<dt><strong><code>haxis</code></strong> :&ensp;<code>numeric array</code> or <code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The values for the horizontal axis. If given, the array will be
+used directly. If a string is given which should correspond to a
+trace header mnemonic, then the values will be taken from the
+ensemble's header table if available. As fallback, a simple
+trace number counter is used.</dd>
+<dt><strong><code>haxisbeg</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The first value to draw on the horizontal axis. Defaults to the
+first value in 'haxis' if 'None' is specified.</dd>
+<dt><strong><code>haxisend</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The last value to draw on the horizontal axis. Defaults to the
+last value in 'haxis' if 'None' is specified.</dd>
+<dt><strong><code>hlabel</code></strong> :&ensp;<code>string</code>, optional <code>(default: None)</code></dt>
+<dd>Label on horizontal axis.</dd>
+<dt><strong><code>hlabelpos</code></strong> :&ensp;<code>string</code>, optional <code>(default: 'center')</code></dt>
+<dd>Position of horizontal label, 'left', 'right' or 'center'.</dd>
+<dt><strong><code>labelfontsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 12)</code></dt>
+<dd>The font size for labels.</dd>
+<dt><strong><code>labelcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color to use for labels.</dd>
+<dt><strong><code>vmajorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw major ticks along the vertical axis.
+Defaults to Matplotlib's standard algorithm.</dd>
+<dt><strong><code>vminorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw minor ticks along the vertical axis.
+Must be smaller than 'vmajorticks'. Defaults to Matplotlib's
+standard behavior.</dd>
+<dt><strong><code>hmajorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw major ticks along the horizontal axis.
+Defaults to Matplotlib's standard algorithm.</dd>
+<dt><strong><code>hminorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw minor ticks along the horizontal axis.
+Must be smaller than 'hmajorticks'. Defaults to Matplotlib's
+standard behavior.</dd>
+<dt><strong><code>majorticklength</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
+<dd>The length of major ticks.</dd>
+<dt><strong><code>minorticklength</code></strong> :&ensp;<code>float</code>, optional <code>(default: 4)</code></dt>
+<dd>The length of minor ticks.</dd>
+<dt><strong><code>majortickwidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>The width of major ticks.</dd>
+<dt><strong><code>minortickwidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.8)</code></dt>
+<dd>The width of minor ticks.</dd>
+<dt><strong><code>ticklabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of tick labels.</dd>
+<dt><strong><code>tickdirection</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'out')</code></dt>
+<dd>Draw ticks to the outside ('out') or inside ('in').</dd>
+<dt><strong><code>ticktop</code></strong> :&ensp;<code>boolean</code>, optional <code>(default: False)</code></dt>
+<dd>Draw ticks and horizontal label at the top (True) instead of bottom
+(False).</dd>
+<dt><strong><code>vticklabelrot</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Rotation angle of vertical tick labels (in degrees).</dd>
+<dt><strong><code>hticklabelrot</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Rotation angle of horizontal tick labels (in degrees).</dd>
+<dt><strong><code>vtickformat</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The format to use for vertical tick labels. Defaults to
+Matplotlib's standard behavior.</dd>
+<dt><strong><code>htickformat</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The format to use for horizontal tick labels. Defaults to
+Matplotlib's standard behavior.</dd>
+<dt><strong><code>vgrid</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If 'None', no grid will be drawn. If set to 'major', a grid for
+major ticks will be drawn. If set to 'both', a grid for major
+and minor ticks will be drawn. This option sets grid lines for
+the vertical axis, i.e., they are displayed horizontally.</dd>
+<dt><strong><code>hgrid</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If 'None', no grid will be drawn. If set to 'major', a grid for
+major ticks will be drawn. If set to 'both', a grid for major
+and minor ticks will be drawn. This option sets grid lines for
+the horizontal axis, i.e., they are displayed vertically.</dd>
+<dt><strong><code>gridlinewidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.8)</code></dt>
+<dd>The linewidth of grid lines.</dd>
+<dt><strong><code>gridlinealpha</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.5)</code></dt>
+<dd>The alpha (transparency) value for grid lines.</dd>
+<dt><strong><code>gridstyle</code></strong> :&ensp;<code>str</code>, optional <code>(default: '-')</code></dt>
+<dd>The style of grid lines. Defaults to solid. See Matplotlib's
+documentation for valid options.</dd>
+<dt><strong><code>gridcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color of grid lines.</dd>
+<dt><strong><code>colorbar</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Whether to draw a colorbar for image plots.</dd>
+<dt><strong><code>colorbarlabel</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The label (typically indicating units) of the colorbar.</dd>
+<dt><strong><code>colorbarshrink</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.4)</code></dt>
+<dd>The vertical scaling factor for the size of the colorbar.</dd>
+<dt><strong><code>colorbarfraction</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.1)</code></dt>
+<dd>The horizontal fraction of the entire figure size that the colorbar
+may use. Default is 10%.</dd>
+<dt><strong><code>colorbarpad</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.02)</code></dt>
+<dd>Padding between the figure and the colorbar. Defaults to 2%.</dd>
+<dt><strong><code>colorbarlabelpad</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Padding applied between the colorbar and the colorbarlabel.</dd>
+<dt><strong><code>colorbarticklabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of colorbar tick labels.</dd>
+<dt><strong><code>colorbarlabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of the colorbar label.</dd>
+<dt><strong><code>colorbarbins</code></strong> :&ensp;<code>int,. optional (default: None)</code></dt>
+<dd>The number of bins to use for determining colorbar ticks. The
+default of 'None' uses Matplotlib's standard behavior.</dd>
+<dt><strong><code>title</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The title of the plot.</dd>
+<dt><strong><code>titlefontsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 14)</code></dt>
+<dd>The fontsize for the title string.</dd>
+<dt><strong><code>titlecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color used for the title.</dd>
+<dt><strong><code>titlepos</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'center')</code></dt>
+<dd>The position of the title, 'left', 'right', or 'center'.</dd>
+<dt><strong><code>mnemonic_dt</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'dt')</code></dt>
+<dd>The trace header mnemonic specifying the sampling interval. Only used
+when the traces are given as a Numpy structured array.</dd>
+<dt><strong><code>mnemonic_delrt</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'delrt')</code></dt>
+<dd>The trace header mnemonic specifying the delay recording time. Only
+used when the traces are given as a Numpy structured array.</dd>
+<dt><strong><code>file</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>Produce an output file on disk using the specified file name. The
+format of the output file is determined by the name's suffix.</dd>
+<dt><strong><code>dpi</code></strong> :&ensp;<code>int (default: 'figure')</code></dt>
+<dd>The dots per inch to use for file output in non-vector graphics
+formats. The special value 'figure' (default) uses the figure's
+dpi value.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>figure.Figure, axes.Axes</code></dt>
+<dd>Matplotlib's figure.Figure and axes.Axes object.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot(data, **kwargs):
+    &#34;&#34;&#34;
+    Display seismic data in a highly configurable way.
+
+    Parameters
+    ----------
+    data : Numpy structured array or Numpy array
+        The seismic data to plot, either as Numpy structured array with
+        trace headers, or as plane Numpy array (just the traces&#39; amplitude
+        values). The actual array with seismic amplitudes should have
+        shape (ntraces, nsamples).
+    fig : mpl.figure.Figure, optional (default: None)
+        An existing Maplotlib figure to use. The default &#39;None&#39; creates
+        a new one.
+    ax : mpl.axes.Axes, optional (default: None)
+        An existing Matplotlib axes object to use for this plot. The
+        default &#39;None&#39; creates a new one.
+    plottype : str, optional (default: &#39;image&#39;)
+        The type of plot to create, either &#39;image&#39; (default) or &#39;wiggle&#39;.
+    width : float, optional (default: 6)
+        The width of the plot (inches).
+    height : float, optional (default: 10)
+        The height of the plot (inches).
+    perc : float, optional (default: 100)
+        The percentile to use when determining the clip values. The
+        default uses all the data. The value of &#39;perc&#39; must be in the
+        range (0, 100].
+    skip : int, optional (default: 1)
+        For wiggle plots, the number of traces to skip to reduce the total
+        number of traces to plot. Wiggle plots do not work well with a lot
+        of traces to plot. If this value is greater than 1, every skip&#39;th
+        trace will be plotted instead of all the traces.
+    xcur : float, optional (default: 1.0)
+        For wiggle plots, the wiggle excursion in traces corresponding to
+        the actual clip.
+    normalize : str, optional (default: None)
+        If set to &#39;trace&#39;, each trace will be normalized individually such
+        that its maximum amplitude is one. If set to &#39;section&#39;, the
+        entire section will be normalized such that its maximum is one.
+        The default &#39;None&#39; means no normalization is applied.
+    lowclip : float, optional (default: None)
+        Clip value at the lower end. Not to be used together with &#39;perc&#39;.
+        The default of &#39;None&#39; means the lowest data value is used.
+    highclip : float, optional (default: None)
+        Clip value at the upper end. Not to be used together with &#39;perc&#39;.
+        Must be larger than &#39;lowclip&#39; if both are given. The default of
+        &#39;None&#39; means the highest data value is used.
+    alpha : float, optional (default: 1.0)
+        The transparency of image plots or wiggle fills. Must be between
+        0 and 1. The default of 1 means no transparency.
+    tight : bool, optional (default: True)
+        Flag whether to apply matplotlib&#39;s tight layout.
+    interpolation : str, optional (default: &#39;bilinear&#39;)
+        The type of interpolation for image plots. See Matplotlib&#39;s
+        documentation for valid strings.
+    colormap : str, optional (default: &#39;seismic&#39;)
+        The colormap for image plots. See Matplotlib&#39;s documentation for
+        valid strings.
+    linewidth : float, optional (default: 0.2)
+        The width of lines in wiggle plots.
+    linecolor : str, optional (default: &#39;black&#39;)
+        The line color for wiggle plots.
+    facecolor : str, optional (default: &#39;white&#39;)
+        The background color of the actual plot area.
+    wiggledraw : bool, optional (default: True)
+        Whether to draw the wiggle trace.
+    wigglefill : bool, optional (default: True)
+        Whether to fill the wiggles. Setting both &#39;wiggledraw&#39; and
+        &#39;wigglefill&#39; to False leads to an empty plot.
+    wigglehires : bool, optional (default: False)
+        Whether to create an oversampled, high-resolution trace before
+        plotting it in plottype &#39;wiggle&#39;. This creates more accurate
+        shading for filled wiggles.
+    fillcolor : str, optional (default: &#39;black&#39;)
+        The color with which wiggles will be filled.
+    vaxis: numeric array, optional (default: None)
+        The values for the vertical axis (typically &#39;time&#39; or &#39;depth&#39;).
+        If not set, the sample number might be used.
+    vaxisbeg : float, optional (default: None)
+        The first value to draw on the vertical axis. Defaults to the first
+        value in &#39;vaxis&#39; if &#39;None&#39; is specified.
+    vaxisend : float, optional (default: None)
+        The last value to draw on the vertical axis. Defaults to the last
+        value in &#39;vaxis&#39; if &#39;None&#39; is specified.
+    vlabel : string, optional (default: None)
+        Label on vertical axis.
+    vlabelpos : string, optional  (default: &#39;center&#39;)
+        Position of vertical label, &#39;bottom&#39;, &#39;top&#39; or &#39;center&#39;.
+    haxis : numeric array or str, optional (default: None)
+        The values for the horizontal axis. If given, the array will be
+        used directly. If a string is given which should correspond to a
+        trace header mnemonic, then the values will be taken from the
+        ensemble&#39;s header table if available. As fallback, a simple
+        trace number counter is used.
+    haxisbeg : float, optional (default: None)
+        The first value to draw on the horizontal axis. Defaults to the
+        first value in &#39;haxis&#39; if &#39;None&#39; is specified.
+    haxisend : float, optional (default: None)
+        The last value to draw on the horizontal axis. Defaults to the
+        last value in &#39;haxis&#39; if &#39;None&#39; is specified.
+    hlabel : string, optional (default: None)
+        Label on horizontal axis.
+    hlabelpos : string, optional (default: &#39;center&#39;)
+        Position of horizontal label, &#39;left&#39;, &#39;right&#39; or &#39;center&#39;.
+    labelfontsize: int, optional (default: 12)
+        The font size for labels.
+    labelcolor: str, optional (default: &#39;black&#39;)
+        The color to use for labels.
+    vmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the vertical axis.
+        Defaults to Matplotlib&#39;s standard algorithm.
+    vminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the vertical axis.
+        Must be smaller than &#39;vmajorticks&#39;. Defaults to Matplotlib&#39;s
+        standard behavior.
+    hmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the horizontal axis.
+        Defaults to Matplotlib&#39;s standard algorithm.
+    hminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the horizontal axis.
+        Must be smaller than &#39;hmajorticks&#39;. Defaults to Matplotlib&#39;s
+        standard behavior.
+    majorticklength : float, optional (default: 6)
+        The length of major ticks.
+    minorticklength : float, optional (default: 4)
+        The length of minor ticks.
+    majortickwidth : float, optional (default: 1)
+        The width of major ticks.
+    minortickwidth : float, optional (default: 0.8)
+        The width of minor ticks.
+    ticklabelsize : int, optional (default: 10)
+        The font size of tick labels.
+    tickdirection : str, optional (default: &#39;out&#39;)
+        Draw ticks to the outside (&#39;out&#39;) or inside (&#39;in&#39;).
+    ticktop : boolean, optional (default: False)
+        Draw ticks and horizontal label at the top (True) instead of bottom
+        (False).
+    vticklabelrot : float, optional (default: 0)
+        Rotation angle of vertical tick labels (in degrees).
+    hticklabelrot : float, optional (default: 0)
+        Rotation angle of horizontal tick labels (in degrees).
+    vtickformat : str, optional (default: None)
+        The format to use for vertical tick labels. Defaults to
+        Matplotlib&#39;s standard behavior.
+    htickformat : str, optional (default: None)
+        The format to use for horizontal tick labels. Defaults to
+        Matplotlib&#39;s standard behavior.
+    vgrid : str, optional (default: None)
+        If &#39;None&#39;, no grid will be drawn. If set to &#39;major&#39;, a grid for
+        major ticks will be drawn. If set to &#39;both&#39;, a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the vertical axis, i.e., they are displayed horizontally.
+    hgrid : str, optional (default: None)
+        If &#39;None&#39;, no grid will be drawn. If set to &#39;major&#39;, a grid for
+        major ticks will be drawn. If set to &#39;both&#39;, a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the horizontal axis, i.e., they are displayed vertically.
+    gridlinewidth : float, optional (default: 0.8)
+        The linewidth of grid lines.
+    gridlinealpha : float, optional (default: 0.5)
+        The alpha (transparency) value for grid lines.
+    gridstyle : str, optional (default: &#39;-&#39;)
+        The style of grid lines. Defaults to solid. See Matplotlib&#39;s
+        documentation for valid options.
+    gridcolor : str, optional (default: &#39;black&#39;)
+        The color of grid lines.
+    colorbar : bool, optional (default: False)
+        Whether to draw a colorbar for image plots.
+    colorbarlabel : str, optional (default: None)
+        The label (typically indicating units) of the colorbar.
+    colorbarshrink : float, optional (default: 0.4)
+        The vertical scaling factor for the size of the colorbar.
+    colorbarfraction: float, optional (default: 0.1)
+        The horizontal fraction of the entire figure size that the colorbar
+        may use. Default is 10%.
+    colorbarpad : float, optional (default: 0.02)
+        Padding between the figure and the colorbar. Defaults to 2%.
+    colorbarlabelpad : float, optional (default: 0)
+        Padding applied between the colorbar and the colorbarlabel.
+    colorbarticklabelsize : int, optional (default: 10)
+        The font size of colorbar tick labels.
+    colorbarlabelsize : int, optional (default: 10)
+        The font size of the colorbar label.
+    colorbarbins : int,. optional (default: None)
+        The number of bins to use for determining colorbar ticks. The
+        default of &#39;None&#39; uses Matplotlib&#39;s standard behavior.
+    title : str, optional (default: None)
+        The title of the plot.
+    titlefontsize : int, optional (default: 14)
+        The fontsize for the title string.
+    titlecolor : str, optional (default: &#39;black&#39;)
+        The color used for the title.
+    titlepos : str, optional (default: &#39;center&#39;)
+        The position of the title, &#39;left&#39;, &#39;right&#39;, or &#39;center&#39;.
+    mnemonic_dt : str, optional (default: &#39;dt&#39;)
+        The trace header mnemonic specifying the sampling interval. Only used
+        when the traces are given as a Numpy structured array.
+    mnemonic_delrt: str, optional (default: &#39;delrt&#39;)
+        The trace header mnemonic specifying the delay recording time. Only
+        used when the traces are given as a Numpy structured array.
+    file : str, optional (default: None)
+        Produce an output file on disk using the specified file name. The
+        format of the output file is determined by the name&#39;s suffix.
+    dpi : int (default: &#39;figure&#39;)
+        The dots per inch to use for file output in non-vector graphics
+        formats. The special value &#39;figure&#39; (default) uses the figure&#39;s
+        dpi value.
+
+    Returns
+    -------
+    figure.Figure, axes.Axes
+        Matplotlib&#39;s figure.Figure and axes.Axes object.
+    &#34;&#34;&#34;
+    myplot = SeisPlt(data, **kwargs)
+    return myplot.show()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="seisplot.plot" href="#seisplot.plot">plot</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+
+Test data
+---------
+2D Vibroseis Line 001, https://wiki.seg.org/wiki/2D_Vibroseis_Line_001
+
+Download
+--------
+https://ftps.geofizyka.pl/main.html?download&weblink=973286ef2a219064126f69fd6b8f77c6&realfilename=2D_Land_vibro_data_2ms.tgz
+
+Extraction
+----------
+$> tar xvzf 2D_Land_vibro_data_2ms.tgz
+
+Information on the data
+-----------------------
+$> cat Line_001.TXT
+
+After successful extraction of all files, you can delete 2D_Land_vibro_data_2ms.tgz: 
+$> rm -f 2D_Land_vibro_data_2ms.tgz
+
