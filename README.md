@@ -91,7 +91,7 @@ one figure, or create displays that share the y-axis (usualy "time").
 
 ## Main author
 
-Dr. Thomas Hertweck, Thomas.Hertweck@kit.edu
+Dr. Thomas Hertweck, geophysics@email.de
 
 ## License
 

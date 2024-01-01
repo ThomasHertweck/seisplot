@@ -9,11 +9,11 @@ name = "seisplot"
 dynamic = ["version"]
 
 authors = [
-  { name="Thomas Hertweck", email="Thomas.Hertweck@kit.edu" },
+  { name="Thomas Hertweck", email="geophysics@email.de" },
 ]
 
 maintainers = [
-  { name="Thomas Hertweck", email="Thomas.Hertweck@kit.edu" },
+  { name="Thomas Hertweck", email="geophysics@email.de" },
 ]
 
 description = "Plotting of seismic data"
