@@ -457,19 +457,21 @@ class SeisPlt():
 
         if self._data.ndim == 1:
             self._data = np.reshape(self._data, (1, -1))
-            if self._is_structured:
-                delay = self._ensemble[self._par.mnemonic_delrt]*1.e-3
-                dt = self._ensemble[self._par.mnemonic_dt]*1e-6
-            else:
-                delay = 0
-                dt = 1
+            if self._par.vaxis is None:
+                if self._is_structured:
+                    delay = self._ensemble[self._par.mnemonic_delrt]*1.e-3
+                    dt = self._ensemble[self._par.mnemonic_dt]*1e-6
+                else:
+                    delay = 0
+                    dt = 1
         elif self._data.ndim == 2:
-            if self._is_structured:
-                delay = self._ensemble[self._par.mnemonic_delrt][0]*1.e-3
-                dt = self._ensemble[self._par.mnemonic_dt][0]*1e-6
-            else:
-                delay = 0
-                dt = 1
+            if self._par.vaxis is None:
+                if self._is_structured:
+                    delay = self._ensemble[self._par.mnemonic_delrt][0]*1.e-3
+                    dt = self._ensemble[self._par.mnemonic_dt][0]*1e-6
+                else:
+                    delay = 0
+                    dt = 1
         else:
             raise RuntimeError("Cannot display arrays of ndim > 2.")
 

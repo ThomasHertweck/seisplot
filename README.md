@@ -87,7 +87,7 @@ The variables `fig` and `ax` are standard Matplotlib figure and axis handles
 that can be used to tweak the display further. You could also create those
 first using `fig, ax = plt.subplots(1, 1)` and pass them to the *plot()* method.
 In this way, it is possible to, for instance, create several seismic displays in
-one figure, or create displays that share the y-axis (usualy "time").
+one figure, or create displays that share the y-axis (usually "time").
 
 ## Main author
 
