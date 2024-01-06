@@ -4,7 +4,7 @@ Plotting of seismic files.
 The seisplot Python module provides basic functionality to display
 seismic data in typical standard image or wiggle displays.
 
-Author & Copyright: Dr. Thomas Hertweck, KIT, Thomas.Hertweck@kit.edu
+Author & Copyright: Dr. Thomas Hertweck, geophysics@email.de
 
 License: GNU Lesser General Public License, Version 3
          https://www.gnu.org/licenses/lgpl-3.0.html
