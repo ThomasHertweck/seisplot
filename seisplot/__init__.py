@@ -10,7 +10,7 @@ License: GNU Lesser General Public License, Version 3
          https://www.gnu.org/licenses/lgpl-3.0.html
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Thomas Hertweck"
 __copyright__ = "(c) 2024 Thomas Hertweck"
 __license__ = "GNU Lesser General Public License, Version 3"
@@ -201,7 +201,7 @@ def plot(data, **kwargs):
         The font size of colorbar tick labels.
     colorbarlabelsize : int, optional (default: 10)
         The font size of the colorbar label.
-    colorbarbins : int,. optional (default: None)
+    colorbarbins : int, optional (default: None)
         The number of bins to use for determining colorbar ticks. The
         default of 'None' uses Matplotlib's standard behavior.
     title : str, optional (default: None)
