@@ -41,6 +41,7 @@ class _PlotPara():
     perc: float = 100.0
     skip: int = 1
     xcur: float = 1.0
+    ampfac: float = 1.0
     normalize: str = None
     lowclip: float = None
     highclip: float = None
@@ -55,6 +56,7 @@ class _PlotPara():
     wigglefill: bool = True
     wigglehires: bool = False
     fillcolor: str = "black"
+    fillneg: bool = False
     vaxis: np.array = None
     vaxisbeg: float = None
     vaxisend: float = None
@@ -106,6 +108,7 @@ class _PlotPara():
     mnemonic_delrt: str = "delrt"
     file: str = None
     dpi: str = "figure"
+    label: str = None
 
 
 class SeisPlt():
@@ -134,6 +137,9 @@ class SeisPlt():
             The width of the plot (inches).
         height : float, optional (default: 10)
             The height of the plot (inches).
+        label : str, optional (default: None)
+            Label for potential legend of wiggle plots. Primarily useful if
+            several wiggle plots are combined into one figure.
         perc : float, optional (default: 100)
             The percentile to use when determining the clip values. The
             default uses all the data. The value of 'perc' must be in the
@@ -146,6 +152,10 @@ class SeisPlt():
         xcur : float, optional (default: 1.0)
             For wiggle plots, the wiggle excursion in traces corresponding to
             the actual clip.
+        ampfac : float, optional (default: 1.0)
+            When plotting several wiggle plots in one figure, amplitude scaling
+            factor to get relative wiggle excursions correct. Basically, the
+            ratio between the maximum absolute amplitudes in both data sets.
         normalize : str, optional (default: None)
             If set to 'trace', each trace will be normalized individually such
             that its maximum amplitude is one. If set to 'section', the
@@ -186,6 +196,9 @@ class SeisPlt():
             shading for filled wiggles.
         fillcolor : str, optional (default: 'black')
             The color with which wiggles will be filled.
+        fillneg: bool, optional (default: False)
+            If wigglefill is True, fill negative amplitude lobes instead of
+            positive amplitude lobes.
         vaxis: numeric array, optional (default: None)
             The values for the vertical axis (typically 'time' or 'depth').
             If not set, the sample number might be used.
@@ -342,6 +355,7 @@ class SeisPlt():
         self._par.ax = kwargs.pop("ax", self._par.ax)
         self._par.width = kwargs.pop("width", self._par.width)
         self._par.height = kwargs.pop("height", self._par.height)
+        self._par.label = kwargs.pop("label", self._par.label)
 
         self._par.perc = kwargs.pop("perc", self._par.perc)
         if self._par.perc <= 0 or self._par.perc > 100:
@@ -363,6 +377,9 @@ class SeisPlt():
 
         self._par.lowclip = kwargs.pop("lowclip", self._par.lowclip)
         self._par.highclip = kwargs.pop("highclip", self._par.highclip)
+        self._par.ampfac = kwargs.pop("ampfac", self._par.ampfac)
+        if self._par.ampfac == 0:
+            raise ValueError("Parameter 'ampfac' cannot be zero.")
         self._par.alpha = kwargs.pop("alpha", self._par.alpha)
         self._par.tight = kwargs.pop("tight", self._par.tight)
         self._par.interpolation = kwargs.pop("interpolation", self._par.interpolation)
@@ -374,6 +391,7 @@ class SeisPlt():
         self._par.wigglefill = kwargs.pop("wigglefill", self._par.wigglefill)
         self._par.wigglehires = kwargs.pop("wigglehires", self._par.wigglehires)
         self._par.fillcolor = kwargs.pop("fillcolor", self._par.fillcolor)
+        self._par.fillneg = kwargs.pop("fillneg", self._par.fillneg)
         self._par.vaxis = kwargs.pop("vaxis", self._par.vaxis)
         self._par.vaxisbeg = kwargs.pop("vaxisbeg", self._par.vaxisbeg)
         self._par.vaxisend = kwargs.pop("vaxisend", self._par.vaxisend)
@@ -546,9 +564,9 @@ class SeisPlt():
 
     def _percentile(self):
         """Determine the percentile of the data."""
-        self._par.vmm = np.percentile(self._data, self._par.perc)
+        self._par.vmm = np.percentile(np.fabs(self._data), self._par.perc)
         if self._par.vmm == 0:
-            self._par.vmm = np.percentile(self._data, 100)
+            self._par.vmm = np.percentile(np.fabs(self._data), 100)
 
     def _clip(self):
         """Determine clip values for plotting."""
@@ -586,13 +604,18 @@ class SeisPlt():
             spacing = 1
 
         if self._par.haxisbeg is None:
-            self._par.haxisbeg = hpos[0]-spacing
+            self._par.haxisbeg = hpos[0]-0.99*spacing
         if self._par.haxisend is None:
-            self._par.haxisend = hpos[-1]+spacing
+            self._par.haxisend = hpos[-1]+0.99*spacing
 
-        scale = np.percentile(dataplt, self._par.perc)
+        scale = np.percentile(np.fabs(dataplt), self._par.perc)
         if scale == 0:
-            scale = np.percentile(dataplt, 100)
+            scale = np.percentile(np.fabs(dataplt), 100)
+        scale *= self._par.ampfac
+
+        label = "_dummy"
+        if self._par.label is not None:
+            label = self._par.label
 
         for trace, curhpos in zip(dataplt, hpos):
             amp = trace / scale * spacing + curhpos
@@ -613,11 +636,19 @@ class SeisPlt():
 
             if self._par.wiggledraw:
                 self._par.ax.plot(itpl_amp, itpl_vaxis, self._par.linecolor,
-                                  lw=self._par.linewidth)
+                                  lw=self._par.linewidth, label=label)
             if self._par.wigglefill:
-                self._par.ax.fill_betweenx(itpl_vaxis, itpl_amp, curhpos, lw=0,
-                                           where=itpl_amp > curhpos, alpha=self._par.alpha,
-                                           facecolor=self._par.fillcolor)
+                if self._par.fillneg:
+                    self._par.ax.fill_betweenx(itpl_vaxis, itpl_amp, curhpos, lw=0,
+                                               where=itpl_amp < curhpos, alpha=self._par.alpha,
+                                               facecolor=self._par.fillcolor)
+                else:
+                    self._par.ax.fill_betweenx(itpl_vaxis, itpl_amp, curhpos, lw=0,
+                                               where=itpl_amp > curhpos, alpha=self._par.alpha,
+                                               facecolor=self._par.fillcolor)
+            # reset so we don't end up with ntraces legend entries
+            label = "_dummy"
+
         self._par.ax.invert_yaxis()
         self._par.ax.set_ylim([self._par.vaxis.max(), self._par.vaxis.min()])
 

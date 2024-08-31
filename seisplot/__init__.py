@@ -10,7 +10,7 @@ License: GNU Lesser General Public License, Version 3
          https://www.gnu.org/licenses/lgpl-3.0.html
 """
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 __author__ = "Thomas Hertweck"
 __copyright__ = "(c) 2024 Thomas Hertweck"
 __license__ = "GNU Lesser General Public License, Version 3"
@@ -41,6 +41,9 @@ def plot(data, **kwargs):
         The width of the plot (inches).
     height : float, optional (default: 10)
         The height of the plot (inches).
+    label : str, optional (default: None)
+        Label for potential legend of wiggle plots. Primarily useful if
+        several wiggle plots are combined into one figure.
     perc : float, optional (default: 100)
         The percentile to use when determining the clip values. The
         default uses all the data. The value of 'perc' must be in the
@@ -53,6 +56,10 @@ def plot(data, **kwargs):
     xcur : float, optional (default: 1.0)
         For wiggle plots, the wiggle excursion in traces corresponding to
         the actual clip.
+    ampfac : float, optional (default: 1.0)
+        When plotting several wiggle plots in one figure, amplitude scaling
+        factor to get relative wiggle excursions correct. Basically, the
+        ratio between the maximum absolute amplitudes in both data sets.
     normalize : str, optional (default: None)
         If set to 'trace', each trace will be normalized individually such
         that its maximum amplitude is one. If set to 'section', the
@@ -93,6 +100,9 @@ def plot(data, **kwargs):
         shading for filled wiggles.
     fillcolor : str, optional (default: 'black')
         The color with which wiggles will be filled.
+    fillneg: bool, optional (default: False)
+        If wigglefill is True, fill negative amplitude lobes instead of
+        positive amplitude lobes.
     vaxis: numeric array, optional (default: None)
         The values for the vertical axis (typically 'time' or 'depth').
         If not set, the sample number might be used.
