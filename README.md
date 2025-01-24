@@ -5,7 +5,8 @@ Plotting of seismic data using variable-density or variable-area wiggle displays
 ## Description
 
 The seisplot module provides a single, highly flexible method *plot()* to 
-display seismic data.
+display seismic data. A second method *toggle()* can be used to create 
+animations that can be saved as images or movies.
 
 The module was designed to get decent displays of seismic data in a way that
 is more convenient than going through many individual Matplotlib function calls
@@ -20,12 +21,15 @@ seismic data.
 * Variable-area wiggle plots.
 * Highly configurable settings like colors, line widths, colorbars, labels, 
   axis ticks, grid lines, etc.
+* Animated toggles between seismic image plots.
 
 <p align="center">
 ![Image plot](img/img1.png "Variable-density image plot")
 ![Wiggle plot](img/img2.png "Variable-area wiggle plot")
 ![Velocity plot](img/img3.png "Non-seismic data plot")
 ![Fielddata plot](img/img4.png "Trace-normalized field data plot")
+![Toggle plot](img/img5.apng "Toggle of image plots")
+
 </p>
 
 ## Getting Started
@@ -79,15 +83,25 @@ as simple as:
 import seisplot
 
 fig, ax = seisplot.plot(data, haxis="offset", width=4, height=6,
-                        vlabel="Time (s)", hlabel="Offset (m)", 
-                        vmajorticks=0.2, vminorticks=0.1, hminorticks=500
-                        vgrid="major")
+                        vlabel="Time (s)", hlabel="Offset (m)",
+                        vmajorticks=0.2, vminorticks=0.1, 
+                        hminorticks=500, vgrid="major")
 ```
 The variables `fig` and `ax` are standard Matplotlib figure and axis handles
 that can be used to tweak the display further. You could also create those
 first using `fig, ax = plt.subplots(1, 1)` and pass them to the *plot()* method.
-In this way, it is possible to, for instance, create several seismic displays in
-one figure, or create displays that share the y-axis (usually "time").
+In this way, it is possible to, for instance, create several seismic displays 
+in one figure, or create displays that share the y-axis (usually "time").
+
+A display toggle can, for instance, be produced in the following way:
+
+```
+ani, fig, ax = seisplot.toggle([data_1, data_2, data_diff],
+                               interval=1000, repeat_delay=0,
+                               hlabel="offset (m)", vlabel="time (s)")
+```
+The returned animation-artist object can be used to save an animated image
+or a movie.
 
 ## Main author
 

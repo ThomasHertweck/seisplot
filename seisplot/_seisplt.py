@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from matplotlib import cm
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
+import matplotlib.animation as animation
+
 log = logging.getLogger(__name__)
 
 
@@ -459,15 +461,8 @@ class SeisPlt():
             for key, val in kwargs.items():
                 log.warning("Unknown argument '%s' with value '%s'.", key, str(val))
 
-    def show(self):
-        """
-        Render and display a seismic plot.
-
-        Returns
-        -------
-        figure.Figure, axes.Axes
-            Matplotlib's figure.Figure and axes.Axes object.
-        """
+    def _pre_show(self):
+        """Setup prior to plot"""
         if self._is_structured:
             self._data = self._ensemble["data"]
         else:
@@ -525,12 +520,8 @@ class SeisPlt():
 
         self._scale_data()
 
-        axi = None
-        if self._par.plottype == "image":
-            axi = self._image()
-        elif self._par.plottype == "wiggle":
-            self._wiggle()
-
+    def _post_show(self, axi):
+        """Setup posterior to plot"""
         self._set_limits()
         self._set_ticks()
         self._set_grid()
@@ -538,6 +529,25 @@ class SeisPlt():
         self._set_colorbar(axi)
         if self._par.tight:
             self.tight()
+
+    def show(self):
+        """
+        Render and display a seismic plot.
+
+        Returns
+        -------
+        figure.Figure, axes.Axes
+            Matplotlib's figure.Figure and axes.Axes object.
+        """
+        self._pre_show()
+
+        axi = None
+        if self._par.plottype == "image":
+            axi = self._image()
+        elif self._par.plottype == "wiggle":
+            self._wiggle()
+
+        self._post_show(axi)
 
         if self._par.file is not None:
             self._par.fig.savefig(self._par.file, dpi=self._par.dpi, bbox_inches='tight')
@@ -580,16 +590,18 @@ class SeisPlt():
             vmax = self._par.vmm
         return (vmin, vmax)
 
-    def _image(self):
+    def _image(self, animated=False):
         """Create an image plot of the data."""
-        self._percentile()
+        if not animated:
+            self._percentile()
         vmin, vmax = self._clip()
         norm = cm.colors.Normalize(vmax=vmax, vmin=vmin)
         axi = self._par.ax.imshow(self._data.T, cmap=self._par.colormap, norm=norm,
                                   interpolation=self._par.interpolation,
                                   alpha=self._par.alpha, origin="upper", aspect="auto",
                                   extent=[self._par.haxis[0], self._par.haxis[-1],
-                                          self._par.vaxis.max(), self._par.vaxis.min()])
+                                          self._par.vaxis.max(), self._par.vaxis.min()],
+                                  animated=animated)
         return axi
 
     def _wiggle(self):
@@ -748,7 +760,7 @@ class SeisPlt():
 
     def _set_colorbar(self, axi):
         """Set the colorbar."""
-        if self._par.plottype == "wiggle":
+        if self._par.plottype == "wiggle" or axi is None:
             return
         if self._par.colorbar:
             cbar = plt.colorbar(axi, ax=self._par.ax, orientation="vertical",
@@ -766,3 +778,35 @@ class SeisPlt():
                                 labelcolor=self._par.labelcolor,
                                 color=self._par.labelcolor)
             cbar.ax.get_yaxis().labelpad = self._par.colorbarlabelpad
+
+    def _toggle(self, alldata, interval=None, repeat_delay=None):
+        """Toggle seismic plots."""
+        self._pre_show()
+        axi = self._image(animated=False)
+        self._post_show(axi)
+        shp = self._data.shape
+
+        ims = []
+        ims.append([self._image(animated=True)])
+        for i in range(1, len(alldata)):
+            if alldata[i].dtype.names is not None:
+                self._data = alldata[i]["data"]
+            else:
+                self._data = alldata[i]
+            if self._data.shape != shp:
+                raise ValueError("Data sets to animate differ in shape "
+                                 f"({shp} vs. {self._data.shape}).")
+            self._scale_data()
+            ims.append([self._image(animated=True)])
+        # reset data to original
+        if self._is_structured:
+            self._data = self._ensemble["data"]
+        else:
+            self._data = self._ensemble
+
+        ani = animation.ArtistAnimation(self._par.fig, ims, interval=interval,
+                                        blit=False, repeat_delay=repeat_delay)
+        # note: blit=True causes axes or ticks to disappear which seems to be
+        #       a known issue also experienced by others
+
+        return ani, self._par.fig, self._par.ax

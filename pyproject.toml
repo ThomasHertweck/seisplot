@@ -53,6 +53,9 @@ include-package-data = true
 package-dir = { "" = "./" }
 
 [tool.setuptools.package-data]
+
+"img" = [ "*.png", "*.apng" ]
+
 "docs" = [ "*.html" ]
 
 "examples" = [ "*.ipynb", "data/README", "data/cmp.npy", "data/vmod.npy" ]
