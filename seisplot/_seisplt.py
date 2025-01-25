@@ -779,7 +779,7 @@ class SeisPlt():
                                 color=self._par.labelcolor)
             cbar.ax.get_yaxis().labelpad = self._par.colorbarlabelpad
 
-    def _toggle(self, alldata, interval=None, repeat_delay=None):
+    def _toggle(self, alldata, interval=None, repeat_delay=None, blit=False):
         """Toggle seismic plots."""
         self._pre_show()
         axi = self._image(animated=False)
@@ -805,7 +805,94 @@ class SeisPlt():
             self._data = self._ensemble
 
         ani = animation.ArtistAnimation(self._par.fig, ims, interval=interval,
-                                        blit=False, repeat_delay=repeat_delay)
+                                        blit=blit, repeat_delay=repeat_delay)
+        # note: blit=True causes axes or ticks to disappear which seems to be
+        #       a known issue also experienced by others
+
+        return ani, self._par.fig, self._par.ax
+
+    def _wipe(self, data1, data2, nwipe=None, direction=None, interval=None,
+              repeat_delay=None, blit=False, drawwipe=True, wipecolor="black"):
+        self._pre_show()
+        axi = self._image(animated=False)
+        self._post_show(axi)
+        shp = self._data.shape
+
+        if data2.dtype.names is not None:
+            dd2 = data2["data"]
+        else:
+            dd2 = data2
+
+        idx2 = []
+        if direction == "lr":
+            nn = shp[0]
+            myaxis = self._par.haxis
+            obeg = self._par.vaxis[0]
+            oend = self._par.vaxis[-1]
+            if drawwipe:
+                line = self._par.ax.plot([myaxis[0], myaxis[0]], [obeg, oend],
+                                         color=wipecolor, animated=True)
+        else:
+            nn = shp[1]
+            myaxis = self._par.vaxis
+            obeg = self._par.haxis[0]
+            oend = self._par.haxis[-1]
+            if drawwipe:
+                line = self._par.ax.plot([obeg, oend], [myaxis[0], myaxis[0]],
+                                         color=wipecolor, animated=True)
+        # determine block sizes and make sure they are as equally distributed
+        # as possible rather than simply making the first or last block larger
+        steps_avg = nn // nwipe
+        rem = nn % nwipe
+        end = 0
+        idx2.append((0, 0))
+        for i in range(nwipe):
+            if i < rem:
+                end += steps_avg+1
+            else:
+                end += steps_avg
+            idx2.append((0, end))
+
+        ims = []
+        if drawwipe:
+            ims.append([self._image(animated=True), line[0]])
+        else:
+            ims.append([self._image(animated=True)])
+
+        for i in range(1, len(idx2)):
+            idx = idx2[i][1]
+            if idx >= len(myaxis):
+                idx -= 1
+            ll = myaxis[idx]
+            if direction == "lr":
+                self._data[idx2[i][0]:idx2[i][1], :] = dd2[idx2[i][0]:idx2[i][1], :]
+                if drawwipe:
+                    line = self._par.ax.plot([ll, ll], [obeg, oend],
+                                             color=wipecolor, animated=True)
+            else:
+                self._data[:, idx2[i][0]:idx2[i][1]] = dd2[:, idx2[i][0]:idx2[i][1]]
+                if drawwipe:
+                    line = self._par.ax.plot([obeg, oend], [ll, ll],
+                                             color=wipecolor, animated=True)
+            self._scale_data()
+            if drawwipe:
+                ims.append([self._image(animated=True), line[0]])
+            else:
+                ims.append([self._image(animated=True)])
+        # add reverse direction
+        i = len(ims)-2
+        while i >= 0:
+            ims.append(ims[i])
+            i -= 1
+
+        # reset data to original
+        if self._is_structured:
+            self._data = self._ensemble["data"]
+        else:
+            self._data = self._ensemble
+
+        ani = animation.ArtistAnimation(self._par.fig, ims, interval=interval,
+                                        blit=blit, repeat_delay=repeat_delay)
         # note: blit=True causes axes or ticks to disappear which seems to be
         #       a known issue also experienced by others
 

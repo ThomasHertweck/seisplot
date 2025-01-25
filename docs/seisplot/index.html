@@ -271,9 +271,9 @@ dpi value.</dd>
 <dd>
 <div class="desc"><p>Toggle seismic images.</p>
 <p>Basically, the parameters are identical to plot() parameters that hold
-for plottype='image'. In addition, there are two parameters to configure
-the toggle, namely 'interval' and 'repeat_delay'. Note that saving the
-animation to a file is not available as part of this function - a user
+for plottype='image'. In addition, there are three parameters to configure
+the toggle, namely 'interval', 'repeat_delay' and 'blit'. Note that saving
+the animation to a file is not available as part of this function - a user
 can simply run the save() method on the returned animation.ArtistAnimation
 object to output animated images (gif, apng) or movies (mp4, mkv).</p>
 <p>The toggle() function is typically used to display data before and after,
@@ -296,10 +296,230 @@ a new one.</dd>
 <dt><strong><code>ax</code></strong> :&ensp;<code>mpl.axes.Axes</code>, optional <code>(default: None)</code></dt>
 <dd>An existing Matplotlib axes object to use for this plot. The
 default 'None' creates a new one.</dd>
-<dt><strong><code>interval</code></strong> :&ensp;<code>int (default: 500)</code></dt>
+<dt><strong><code>interval</code></strong> :&ensp;<code>int</code>, optional <code>(default: 500)</code></dt>
 <dd>Delay between frames in milliseconds.</dd>
-<dt><strong><code>repeat_delay</code></strong> :&ensp;<code>int (default: 0)</code></dt>
+<dt><strong><code>repeat_delay</code></strong> :&ensp;<code>int</code>, optional <code>(default: 0)</code></dt>
 <dd>The delay in milliseconds between consecutive animation runs.</dd>
+<dt><strong><code>blit</code></strong> :&ensp;<code>boolean</code>, optional <code>(default: False)</code></dt>
+<dd>Whether blitting is used to optimize drawing. With blit=True, the
+drawing will be faster. But some Artists like frame lines might
+get lost accidentally.</dd>
+<dt><strong><code>width</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
+<dd>The width of the plot (inches).</dd>
+<dt><strong><code>height</code></strong> :&ensp;<code>float</code>, optional <code>(default: 10)</code></dt>
+<dd>The height of the plot (inches).</dd>
+<dt><strong><code>perc</code></strong> :&ensp;<code>float</code>, optional <code>(default: 100)</code></dt>
+<dd>The percentile to use when determining the clip values. The
+default uses all the data. The value of 'perc' must be in the
+range (0, 100].</dd>
+<dt><strong><code>normalize</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If set to 'trace', each trace will be normalized individually such
+that its maximum amplitude is one. If set to 'section', the
+entire section will be normalized such that its maximum is one.
+The default 'None' means no normalization is applied.</dd>
+<dt><strong><code>lowclip</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>Clip value at the lower end. Not to be used together with 'perc'.
+The default of 'None' means the lowest data value is used.</dd>
+<dt><strong><code>highclip</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>Clip value at the upper end. Not to be used together with 'perc'.
+Must be larger than 'lowclip' if both are given. The default of
+'None' means the highest data value is used.</dd>
+<dt><strong><code>alpha</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1.0)</code></dt>
+<dd>The transparency of image plots. Must be between 0 and 1. The
+default of 1 means no transparency.</dd>
+<dt><strong><code>tight</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Flag whether to apply matplotlib's tight layout.</dd>
+<dt><strong><code>interpolation</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'bilinear')</code></dt>
+<dd>The type of interpolation for image plots. See Matplotlib's
+documentation for valid strings.</dd>
+<dt><strong><code>colormap</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'seismic')</code></dt>
+<dd>The colormap for image plots. See Matplotlib's documentation for
+valid strings.</dd>
+<dt><strong><code>facecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'white')</code></dt>
+<dd>The background color of the actual plot area.</dd>
+<dt><strong><code>vaxis</code></strong> :&ensp;<code>numeric array</code>, optional <code>(default: None)</code></dt>
+<dd>The values for the vertical axis (typically 'time' or 'depth').
+If not set, the sample number might be used.</dd>
+<dt><strong><code>vaxisbeg</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The first value to draw on the vertical axis. Defaults to the first
+value in 'vaxis' if 'None' is specified.</dd>
+<dt><strong><code>vaxisend</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The last value to draw on the vertical axis. Defaults to the last
+value in 'vaxis' if 'None' is specified.</dd>
+<dt><strong><code>vlabel</code></strong> :&ensp;<code>string</code>, optional <code>(default: None)</code></dt>
+<dd>Label on vertical axis.</dd>
+<dt><strong><code>vlabelpos</code></strong> :&ensp;<code>string</code>, optional
+<code>(default: 'center')</code></dt>
+<dd>Position of vertical label, 'bottom', 'top' or 'center'.</dd>
+<dt><strong><code>haxis</code></strong> :&ensp;<code>numeric array</code> or <code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The values for the horizontal axis. If given, the array will be
+used directly. If a string is given which should correspond to a
+trace header mnemonic, then the values will be taken from the
+ensemble's header table if available. As fallback, a simple
+trace number counter is used.</dd>
+<dt><strong><code>haxisbeg</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The first value to draw on the horizontal axis. Defaults to the
+first value in 'haxis' if 'None' is specified.</dd>
+<dt><strong><code>haxisend</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The last value to draw on the horizontal axis. Defaults to the
+last value in 'haxis' if 'None' is specified.</dd>
+<dt><strong><code>hlabel</code></strong> :&ensp;<code>string</code>, optional <code>(default: None)</code></dt>
+<dd>Label on horizontal axis.</dd>
+<dt><strong><code>hlabelpos</code></strong> :&ensp;<code>string</code>, optional <code>(default: 'center')</code></dt>
+<dd>Position of horizontal label, 'left', 'right' or 'center'.</dd>
+<dt><strong><code>labelfontsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 12)</code></dt>
+<dd>The font size for labels.</dd>
+<dt><strong><code>labelcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color to use for labels.</dd>
+<dt><strong><code>vmajorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw major ticks along the vertical axis.
+Defaults to Matplotlib's standard algorithm.</dd>
+<dt><strong><code>vminorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw minor ticks along the vertical axis.
+Must be smaller than 'vmajorticks'. Defaults to Matplotlib's
+standard behavior.</dd>
+<dt><strong><code>hmajorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw major ticks along the horizontal axis.
+Defaults to Matplotlib's standard algorithm.</dd>
+<dt><strong><code>hminorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw minor ticks along the horizontal axis.
+Must be smaller than 'hmajorticks'. Defaults to Matplotlib's
+standard behavior.</dd>
+<dt><strong><code>majorticklength</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
+<dd>The length of major ticks.</dd>
+<dt><strong><code>minorticklength</code></strong> :&ensp;<code>float</code>, optional <code>(default: 4)</code></dt>
+<dd>The length of minor ticks.</dd>
+<dt><strong><code>majortickwidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>The width of major ticks.</dd>
+<dt><strong><code>minortickwidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.8)</code></dt>
+<dd>The width of minor ticks.</dd>
+<dt><strong><code>ticklabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of tick labels.</dd>
+<dt><strong><code>tickdirection</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'out')</code></dt>
+<dd>Draw ticks to the outside ('out') or inside ('in').</dd>
+<dt><strong><code>ticktop</code></strong> :&ensp;<code>boolean</code>, optional <code>(default: False)</code></dt>
+<dd>Draw ticks and horizontal label at the top (True) instead of bottom
+(False).</dd>
+<dt><strong><code>vticklabelrot</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Rotation angle of vertical tick labels (in degrees).</dd>
+<dt><strong><code>hticklabelrot</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Rotation angle of horizontal tick labels (in degrees).</dd>
+<dt><strong><code>vtickformat</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The format to use for vertical tick labels. Defaults to
+Matplotlib's standard behavior.</dd>
+<dt><strong><code>htickformat</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The format to use for horizontal tick labels. Defaults to
+Matplotlib's standard behavior.</dd>
+<dt><strong><code>vgrid</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If 'None', no grid will be drawn. If set to 'major', a grid for
+major ticks will be drawn. If set to 'both', a grid for major
+and minor ticks will be drawn. This option sets grid lines for
+the vertical axis, i.e., they are displayed horizontally.</dd>
+<dt><strong><code>hgrid</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If 'None', no grid will be drawn. If set to 'major', a grid for
+major ticks will be drawn. If set to 'both', a grid for major
+and minor ticks will be drawn. This option sets grid lines for
+the horizontal axis, i.e., they are displayed vertically.</dd>
+<dt><strong><code>gridlinewidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.8)</code></dt>
+<dd>The linewidth of grid lines.</dd>
+<dt><strong><code>gridlinealpha</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.5)</code></dt>
+<dd>The alpha (transparency) value for grid lines.</dd>
+<dt><strong><code>gridstyle</code></strong> :&ensp;<code>str</code>, optional <code>(default: '-')</code></dt>
+<dd>The style of grid lines. Defaults to solid. See Matplotlib's
+documentation for valid options.</dd>
+<dt><strong><code>gridcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color of grid lines.</dd>
+<dt><strong><code>colorbar</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Whether to draw a colorbar for image plots.</dd>
+<dt><strong><code>colorbarlabel</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The label (typically indicating units) of the colorbar.</dd>
+<dt><strong><code>colorbarshrink</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.4)</code></dt>
+<dd>The vertical scaling factor for the size of the colorbar.</dd>
+<dt><strong><code>colorbarfraction</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.1)</code></dt>
+<dd>The horizontal fraction of the entire figure size that the colorbar
+may use. Default is 10%.</dd>
+<dt><strong><code>colorbarpad</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.02)</code></dt>
+<dd>Padding between the figure and the colorbar. Defaults to 2%.</dd>
+<dt><strong><code>colorbarlabelpad</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Padding applied between the colorbar and the colorbarlabel.</dd>
+<dt><strong><code>colorbarticklabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of colorbar tick labels.</dd>
+<dt><strong><code>colorbarlabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of the colorbar label.</dd>
+<dt><strong><code>colorbarbins</code></strong> :&ensp;<code>int</code>, optional <code>(default: None)</code></dt>
+<dd>The number of bins to use for determining colorbar ticks. The
+default of 'None' uses Matplotlib's standard behavior.</dd>
+<dt><strong><code>title</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The title of the plot.</dd>
+<dt><strong><code>titlefontsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 14)</code></dt>
+<dd>The fontsize for the title string.</dd>
+<dt><strong><code>titlecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color used for the title.</dd>
+<dt><strong><code>titlepos</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'center')</code></dt>
+<dd>The position of the title, 'left', 'right', or 'center'.</dd>
+<dt><strong><code>mnemonic_dt</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'dt')</code></dt>
+<dd>The trace header mnemonic specifying the sampling interval. Only used
+when the traces are given as a Numpy structured array.</dd>
+<dt><strong><code>mnemonic_delrt</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'delrt')</code></dt>
+<dd>The trace header mnemonic specifying the delay recording time. Only
+used when the traces are given as a Numpy structured array.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>animation.ArtistAnimation, figure.Figure, axes.Axes</code></dt>
+<dd>Matplotlib's animation.ArtistAnimation, figure.Figure and axes.Axes object.</dd>
+</dl></div>
+</dd>
+<dt id="seisplot.wipe"><code class="name flex">
+<span>def <span class="ident">wipe</span></span>(<span>data1, data2, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wipe two images.</p>
+<p>Basically, the parameters are identical to plot() parameters that hold
+for plottype='image'. In addition, there are several parameters to
+configure the wiping process. Note that saving the animation to a file is
+not available as part of this function - a user can simply run the save()
+method on the returned animation.ArtistAnimation object to output animated
+images (gif, apng) or movies (mp4, mkv).</p>
+<p>The wipe() function is typically used to display data before and after a
+certain processing step.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data1</code></strong> :&ensp;<code>Numpy structured array</code> or <code>Numpy array</code></dt>
+<dd>First seismic data to plot, either as Numpy structured array with
+trace headers, or as plane Numpy array (just the traces' amplitude
+values). Information on axes etc. and data values is taken from
+this first data set, if applicable.</dd>
+<dt><strong><code>data2</code></strong> :&ensp;<code>Numpy structured array</code> or <code>Numpy array</code></dt>
+<dd>Second seismic data to plot, either as Numpy structured array with
+trace headers, or as plane Numpy array (just the traces' amplitude
+values). The data set must have the same size/shape as data1.</dd>
+<dt><strong><code>fig</code></strong> :&ensp;<code>mpl.figure.Figure</code>, optional <code>(default: None)</code></dt>
+<dd>An existing Maplotlib figure to use. The default 'None' creates
+a new one.</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>mpl.axes.Axes</code>, optional <code>(default: None)</code></dt>
+<dd>An existing Matplotlib axes object to use for this plot. The
+default 'None' creates a new one.</dd>
+<dt><strong><code>interval</code></strong> :&ensp;<code>int</code>, optional <code>(default: 500)</code></dt>
+<dd>Delay between frames in milliseconds.</dd>
+<dt><strong><code>repeat_delay</code></strong> :&ensp;<code>int</code>, optional <code>(default: 0)</code></dt>
+<dd>The delay in milliseconds between consecutive animation runs.</dd>
+<dt><strong><code>blit</code></strong> :&ensp;<code>boolean</code>, optional <code>(default: False)</code></dt>
+<dd>Whether blitting is used to optimize drawing. With blit=True, the
+drawing will be faster. But some Artists like frame lines might
+get lost accidentally.</dd>
+<dt><strong><code>nwipe</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The number of steps to complete a full wiping process, i.e., to
+completely go from one image to the other image.</dd>
+<dt><strong><code>direction</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'lr')</code></dt>
+<dd>Whether to wipe from left to right and back ('lr') or from top to
+bottom and back,, i.e., up and down ('ud').</dd>
+<dt><strong><code>drawwipe</code></strong> :&ensp;<code>boolean</code>, optional <code>(default: True)</code></dt>
+<dd>Whether to draw a line on each frame marking the current separation
+between the two images. The line will be vertical for 'lr' wipes and
+horizontal for 'ud' wipes.</dd>
+<dt><strong><code>wipecolor</code></strong> :&ensp;<code>string</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color of the line separating the two images on each frame.</dd>
 <dt><strong><code>width</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
 <dd>The width of the plot (inches).</dd>
 <dt><strong><code>height</code></strong> :&ensp;<code>float</code>, optional <code>(default: 10)</code></dt>
@@ -480,6 +700,7 @@ used when the traces are given as a Numpy structured array.</dd>
 <ul class="">
 <li><code><a title="seisplot.plot" href="#seisplot.plot">plot</a></code></li>
 <li><code><a title="seisplot.toggle" href="#seisplot.toggle">toggle</a></code></li>
+<li><code><a title="seisplot.wipe" href="#seisplot.wipe">wipe</a></code></li>
 </ul>
 </li>
 </ul>
