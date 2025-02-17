@@ -29,8 +29,8 @@ seismic data.
 ![Wiggle plot](img/img2.png "Variable-area wiggle plot")
 ![Velocity plot](img/img3.png "Non-seismic data plot")
 ![Fielddata plot](img/img4.png "Trace-normalized field data plot")
-![Toggle plot](img/img5.apng "Toggle of image plots")
-![Wipe plot](img/img6.apng "Wipe of image plots")
+![Toggle plot](img/img5.png "Toggle of image plots")
+![Wipe plot](img/img6.png "Wipe of image plots")
 
 </p>
 
