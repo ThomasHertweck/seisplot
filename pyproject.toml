@@ -57,4 +57,3 @@ package-dir = { "" = "./" }
 
 [tool.setuptools.package-data]
 "img" = [ "*.png" ]
-i
