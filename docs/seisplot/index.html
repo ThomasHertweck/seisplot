@@ -265,6 +265,189 @@ dpi value.</dd>
 <dd>Matplotlib's figure.Figure and axes.Axes object.</dd>
 </dl></div>
 </dd>
+<dt id="seisplot.spectrum"><code class="name flex">
+<span>def <span class="ident">spectrum</span></span>(<span>data, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Display amplitude or phase spectrum of seismic data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>Numpy structured array</code> or <code>Numpy array</code></dt>
+<dd>The seismic data, either as Numpy structured array with trace
+headers, or as plane Numpy array (just the traces' amplitude values).
+The actual array with seismic amplitudes should have shape
+(ntraces, nsamples).</dd>
+<dt><strong><code>fig</code></strong> :&ensp;<code>mpl.figure.Figure</code>, optional <code>(default: None)</code></dt>
+<dd>An existing Maplotlib figure to use. The default 'None' creates
+a new one.</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>mpl.axes.Axes</code>, optional <code>(default: None)</code></dt>
+<dd>An existing Matplotlib axes object to use for this plot. The
+default 'None' creates a new one.</dd>
+<dt><strong><code>amplitude</code></strong> :&ensp;<code>bool (default: False)</code></dt>
+<dd>Whether to plot the amplitude spectrum. One of amplitude or phase
+must be set to True.</dd>
+<dt><strong><code>phase</code></strong> :&ensp;<code>bool (default: False)</code></dt>
+<dd>Whether to plot the phase spectrum. One of amplitude or phase must
+be set to True.</dd>
+<dt><strong><code>window</code></strong> :&ensp;<code>callable</code> or <code>Numpy array</code>, optional <code>(default: None)</code></dt>
+<dd>A function or a vector of length nsamples used to window the data
+before performing a Fourier transform, typically used to taper the
+traces at their beginning and ending. For instance, you could use
+'window=np.hanning' to apply a Hanning window to the traces. The
+function must be callable with a single argument, the number of
+samples.</dd>
+<dt><strong><code>nfft</code></strong> :&ensp;<code>int</code>, optional <code>(default: nsamples)</code></dt>
+<dd>The Fourier transform length. By default, the number of samples is
+used. If nfft is larger, then zeros will be padded. If nfft is
+smaller, then traces will be truncated.</dd>
+<dt><strong><code>fftnorm</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'backward')</code></dt>
+<dd>Where to apply the FFT normalization factor. The default 'backward'
+applies no scaling in the forward transform. The alternative
+'forward' applies the full scaling in the forward transform, and
+'ortho' applies 1/sqrt(nfft) on both the forward and backward.
+transform. Note that there is always a scaling factor of 2 in the
+amplitude spectrum as only positive frequencies are displayed.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>str</code>, optional <code>(default 'linear')</code></dt>
+<dd>Applies to amplitude spectra only. Whether to plot a linear amplitude
+spectrum (default), or an amplitude spectrum in dezibel ('dB').</dd>
+<dt><strong><code>unwrap</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Applies to phase spectra only. Whether to unwrap the phase spectrum
+or not.</dd>
+<dt><strong><code>degree</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Applies to phase spectra only. Whether to display the phase in
+degrees or not; default is a display in radians.</dd>
+<dt><strong><code>smooth</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Smooth the amplitude spectrum using moving average.</dd>
+<dt><strong><code>smoothwindow</code></strong> :&ensp;<code>float</code>, optional <code>(default: 5*df)</code></dt>
+<dd>The length of the moving average window for smoothing (in Hz).</dd>
+<dt><strong><code>width</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
+<dd>The width of the plot (inches).</dd>
+<dt><strong><code>height</code></strong> :&ensp;<code>float</code>, optional <code>(default: 10)</code></dt>
+<dd>The height of the plot (inches).</dd>
+<dt><strong><code>tight</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Flag whether to apply matplotlib's tight layout.</dd>
+<dt><strong><code>linewidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.5)</code></dt>
+<dd>The width of lines.</dd>
+<dt><strong><code>linecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The line color.</dd>
+<dt><strong><code>facecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'white')</code></dt>
+<dd>The background color of the actual plot area.</dd>
+<dt><strong><code>label</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>Label for potential legend. Primarily useful if an additional graph
+is added to a spectrum plot later on.</dd>
+<dt><strong><code>vaxis</code></strong> :&ensp;<code>numeric array</code>, optional <code>(default: None)</code></dt>
+<dd>The values for the vertical axis. If not set, it is taken from the
+data in case of a structured array, otherwise as last fallback the
+sample number might be used.</dd>
+<dt><strong><code>vaxisbeg</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The first value to draw on the vertical spectral axis.</dd>
+<dt><strong><code>vaxisend</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The last value to draw on the vertical spectral axis.</dd>
+<dt><strong><code>vlabel</code></strong> :&ensp;<code>string</code>, optional <code>(default: None)</code></dt>
+<dd>Label on vertical spectral axis.</dd>
+<dt><strong><code>vlabelpos</code></strong> :&ensp;<code>string</code>, optional
+<code>(default: 'center')</code></dt>
+<dd>Position of vertical label, 'bottom', 'top' or 'center'.</dd>
+<dt><strong><code>haxisbeg</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The first value to draw on the horizontal frequency axis. Defaults
+to 0.</dd>
+<dt><strong><code>haxisend</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The last value to draw on the horizontal frequency axis. Defaults to
+the Nyquist frequency.</dd>
+<dt><strong><code>hlabel</code></strong> :&ensp;<code>string</code>, optional <code>(default: None)</code></dt>
+<dd>Label on horizontal frequency axis.</dd>
+<dt><strong><code>hlabelpos</code></strong> :&ensp;<code>string</code>, optional <code>(default: 'center')</code></dt>
+<dd>Position of horizontal label, 'left', 'right' or 'center'.</dd>
+<dt><strong><code>labelfontsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 12)</code></dt>
+<dd>The font size for labels.</dd>
+<dt><strong><code>labelcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color to use for labels.</dd>
+<dt><strong><code>vmajorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw major ticks along the vertical axis.
+Defaults to Matplotlib's standard algorithm.</dd>
+<dt><strong><code>vminorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw minor ticks along the vertical axis.
+Must be smaller than 'vmajorticks'. Defaults to Matplotlib's
+standard behavior.</dd>
+<dt><strong><code>hmajorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw major ticks along the horizontal axis.
+Defaults to Matplotlib's standard algorithm.</dd>
+<dt><strong><code>hminorticks</code></strong> :&ensp;<code>float</code>, optional <code>(default: None)</code></dt>
+<dd>The spacing at which to draw minor ticks along the horizontal axis.
+Must be smaller than 'hmajorticks'. Defaults to Matplotlib's
+standard behavior.</dd>
+<dt><strong><code>majorticklength</code></strong> :&ensp;<code>float</code>, optional <code>(default: 6)</code></dt>
+<dd>The length of major ticks.</dd>
+<dt><strong><code>minorticklength</code></strong> :&ensp;<code>float</code>, optional <code>(default: 4)</code></dt>
+<dd>The length of minor ticks.</dd>
+<dt><strong><code>majortickwidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>The width of major ticks.</dd>
+<dt><strong><code>minortickwidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.8)</code></dt>
+<dd>The width of minor ticks.</dd>
+<dt><strong><code>ticklabelsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>The font size of tick labels.</dd>
+<dt><strong><code>tickdirection</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'out')</code></dt>
+<dd>Draw ticks to the outside ('out') or inside ('in').</dd>
+<dt><strong><code>ticktop</code></strong> :&ensp;<code>boolean</code>, optional <code>(default: False)</code></dt>
+<dd>Draw ticks and horizontal label at the top (True) instead of bottom
+(False).</dd>
+<dt><strong><code>vticklabelrot</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Rotation angle of vertical tick labels (in degrees).</dd>
+<dt><strong><code>hticklabelrot</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Rotation angle of horizontal tick labels (in degrees).</dd>
+<dt><strong><code>vtickformat</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The format to use for vertical tick labels. Defaults to
+Matplotlib's standard behavior.</dd>
+<dt><strong><code>htickformat</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The format to use for horizontal tick labels. Defaults to
+Matplotlib's standard behavior.</dd>
+<dt><strong><code>vgrid</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If 'None', no grid will be drawn. If set to 'major', a grid for
+major ticks will be drawn. If set to 'both', a grid for major
+and minor ticks will be drawn. This option sets grid lines for
+the vertical axis, i.e., they are displayed horizontally.</dd>
+<dt><strong><code>hgrid</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>If 'None', no grid will be drawn. If set to 'major', a grid for
+major ticks will be drawn. If set to 'both', a grid for major
+and minor ticks will be drawn. This option sets grid lines for
+the horizontal axis, i.e., they are displayed vertically.</dd>
+<dt><strong><code>gridlinewidth</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.8)</code></dt>
+<dd>The linewidth of grid lines.</dd>
+<dt><strong><code>gridlinealpha</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.5)</code></dt>
+<dd>The alpha (transparency) value for grid lines.</dd>
+<dt><strong><code>gridstyle</code></strong> :&ensp;<code>str</code>, optional <code>(default: '-')</code></dt>
+<dd>The style of grid lines. Defaults to solid. See Matplotlib's
+documentation for valid options.</dd>
+<dt><strong><code>gridcolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color of grid lines.</dd>
+<dt><strong><code>title</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>The title of the plot.</dd>
+<dt><strong><code>titlefontsize</code></strong> :&ensp;<code>int</code>, optional <code>(default: 14)</code></dt>
+<dd>The fontsize for the title string.</dd>
+<dt><strong><code>titlecolor</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'black')</code></dt>
+<dd>The color used for the title.</dd>
+<dt><strong><code>titlepos</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'center')</code></dt>
+<dd>The position of the title, 'left', 'right', or 'center'.</dd>
+<dt><strong><code>mnemonic_dt</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'dt')</code></dt>
+<dd>The trace header mnemonic specifying the sampling interval. Only used
+when the traces are given as a Numpy structured array.</dd>
+<dt><strong><code>mnemonic_delrt</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'delrt')</code></dt>
+<dd>The trace header mnemonic specifying the delay recording time. Only
+used when the traces are given as a Numpy structured array.</dd>
+<dt><strong><code>file</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>Produce an output file on disk using the specified file name. The
+format of the output file is determined by the name's suffix.</dd>
+<dt><strong><code>dpi</code></strong> :&ensp;<code>int (default: 'figure')</code></dt>
+<dd>The dots per inch to use for file output in non-vector graphics
+formats. The special value 'figure' (default) uses the figure's
+dpi value.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>figure.Figure, axes.Axes</code></dt>
+<dd>Matplotlib's figure.Figure and axes.Axes object.</dd>
+</dl></div>
+</dd>
 <dt id="seisplot.toggle"><code class="name flex">
 <span>def <span class="ident">toggle</span></span>(<span>alldata, **kwargs)</span>
 </code></dt>
@@ -699,6 +882,7 @@ used when the traces are given as a Numpy structured array.</dd>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="seisplot.plot" href="#seisplot.plot">plot</a></code></li>
+<li><code><a title="seisplot.spectrum" href="#seisplot.spectrum">spectrum</a></code></li>
 <li><code><a title="seisplot.toggle" href="#seisplot.toggle">toggle</a></code></li>
 <li><code><a title="seisplot.wipe" href="#seisplot.wipe">wipe</a></code></li>
 </ul>

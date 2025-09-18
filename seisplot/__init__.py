@@ -10,7 +10,7 @@ License: GNU Lesser General Public License, Version 3
          https://www.gnu.org/licenses/lgpl-3.0.html
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 __author__ = "Thomas Hertweck"
 __copyright__ = "(c) 2025 Thomas Hertweck"
 __license__ = "GNU Lesser General Public License, Version 3"
@@ -721,3 +721,187 @@ def wipe(data1, data2, **kwargs):
     return myplot._wipe(data1, data2, nwipe=nwipe, direction=direction,
                         interval=interval, repeat_delay=repeat_delay,
                         blit=blit, drawwipe=drawwipe, wipecolor=wipecolor)
+
+
+def spectrum(data, **kwargs):
+    """
+    Display amplitude or phase spectrum of seismic data.
+
+    Parameters
+    ----------
+    data : Numpy structured array or Numpy array
+        The seismic data, either as Numpy structured array with trace
+        headers, or as plane Numpy array (just the traces' amplitude values).
+        The actual array with seismic amplitudes should have shape
+        (ntraces, nsamples).
+    fig : mpl.figure.Figure, optional (default: None)
+        An existing Maplotlib figure to use. The default 'None' creates
+        a new one.
+    ax : mpl.axes.Axes, optional (default: None)
+        An existing Matplotlib axes object to use for this plot. The
+        default 'None' creates a new one.
+    amplitude : bool (default: False)
+        Whether to plot the amplitude spectrum. One of amplitude or phase
+        must be set to True.
+    phase : bool (default: False)
+        Whether to plot the phase spectrum. One of amplitude or phase must
+        be set to True.
+    window : callable or Numpy array, optional (default: None)
+        A function or a vector of length nsamples used to window the data
+        before performing a Fourier transform, typically used to taper the
+        traces at their beginning and ending. For instance, you could use
+        'window=np.hanning' to apply a Hanning window to the traces. The
+        function must be callable with a single argument, the number of
+        samples.
+    nfft : int, optional (default: nsamples)
+        The Fourier transform length. By default, the number of samples is
+        used. If nfft is larger, then zeros will be padded. If nfft is
+        smaller, then traces will be truncated.
+    fftnorm : str, optional (default: 'backward')
+        Where to apply the FFT normalization factor. The default 'backward'
+        applies no scaling in the forward transform. The alternative
+        'forward' applies the full scaling in the forward transform, and
+        'ortho' applies 1/sqrt(nfft) on both the forward and backward.
+        transform. Note that there is always a scaling factor of 2 in the
+        amplitude spectrum as only positive frequencies are displayed.
+    scale : str, optional (default 'linear')
+        Applies to amplitude spectra only. Whether to plot a linear amplitude
+        spectrum (default), or an amplitude spectrum in dezibel ('dB').
+    unwrap : bool, optional (default: True)
+        Applies to phase spectra only. Whether to unwrap the phase spectrum
+        or not.
+    degree : bool, optional (default: False)
+        Applies to phase spectra only. Whether to display the phase in
+        degrees or not; default is a display in radians.
+    smooth : bool, optional (default: False)
+        Smooth the amplitude spectrum using moving average.
+    smoothwindow : float, optional (default: 5*df)
+        The length of the moving average window for smoothing (in Hz).
+    width : float, optional (default: 6)
+        The width of the plot (inches).
+    height : float, optional (default: 10)
+        The height of the plot (inches).
+    tight : bool, optional (default: True)
+        Flag whether to apply matplotlib's tight layout.
+    linewidth : float, optional (default: 0.5)
+        The width of lines.
+    linecolor : str, optional (default: 'black')
+        The line color.
+    facecolor : str, optional (default: 'white')
+        The background color of the actual plot area.
+    label : str, optional (default: None)
+        Label for potential legend. Primarily useful if an additional graph
+        is added to a spectrum plot later on.
+    vaxis: numeric array, optional (default: None)
+        The values for the vertical axis. If not set, it is taken from the
+        data in case of a structured array, otherwise as last fallback the
+        sample number might be used.
+    vaxisbeg : float, optional (default: None)
+        The first value to draw on the vertical spectral axis.
+    vaxisend : float, optional (default: None)
+        The last value to draw on the vertical spectral axis.
+    vlabel : string, optional (default: None)
+        Label on vertical spectral axis.
+    vlabelpos : string, optional  (default: 'center')
+        Position of vertical label, 'bottom', 'top' or 'center'.
+    haxisbeg : float, optional (default: None)
+        The first value to draw on the horizontal frequency axis. Defaults
+        to 0.
+    haxisend : float, optional (default: None)
+        The last value to draw on the horizontal frequency axis. Defaults to
+        the Nyquist frequency.
+    hlabel : string, optional (default: None)
+        Label on horizontal frequency axis.
+    hlabelpos : string, optional (default: 'center')
+        Position of horizontal label, 'left', 'right' or 'center'.
+    labelfontsize: int, optional (default: 12)
+        The font size for labels.
+    labelcolor: str, optional (default: 'black')
+        The color to use for labels.
+    vmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the vertical axis.
+        Defaults to Matplotlib's standard algorithm.
+    vminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the vertical axis.
+        Must be smaller than 'vmajorticks'. Defaults to Matplotlib's
+        standard behavior.
+    hmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the horizontal axis.
+        Defaults to Matplotlib's standard algorithm.
+    hminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the horizontal axis.
+        Must be smaller than 'hmajorticks'. Defaults to Matplotlib's
+        standard behavior.
+    majorticklength : float, optional (default: 6)
+        The length of major ticks.
+    minorticklength : float, optional (default: 4)
+        The length of minor ticks.
+    majortickwidth : float, optional (default: 1)
+        The width of major ticks.
+    minortickwidth : float, optional (default: 0.8)
+        The width of minor ticks.
+    ticklabelsize : int, optional (default: 10)
+        The font size of tick labels.
+    tickdirection : str, optional (default: 'out')
+        Draw ticks to the outside ('out') or inside ('in').
+    ticktop : boolean, optional (default: False)
+        Draw ticks and horizontal label at the top (True) instead of bottom
+        (False).
+    vticklabelrot : float, optional (default: 0)
+        Rotation angle of vertical tick labels (in degrees).
+    hticklabelrot : float, optional (default: 0)
+        Rotation angle of horizontal tick labels (in degrees).
+    vtickformat : str, optional (default: None)
+        The format to use for vertical tick labels. Defaults to
+        Matplotlib's standard behavior.
+    htickformat : str, optional (default: None)
+        The format to use for horizontal tick labels. Defaults to
+        Matplotlib's standard behavior.
+    vgrid : str, optional (default: None)
+        If 'None', no grid will be drawn. If set to 'major', a grid for
+        major ticks will be drawn. If set to 'both', a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the vertical axis, i.e., they are displayed horizontally.
+    hgrid : str, optional (default: None)
+        If 'None', no grid will be drawn. If set to 'major', a grid for
+        major ticks will be drawn. If set to 'both', a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the horizontal axis, i.e., they are displayed vertically.
+    gridlinewidth : float, optional (default: 0.8)
+        The linewidth of grid lines.
+    gridlinealpha : float, optional (default: 0.5)
+        The alpha (transparency) value for grid lines.
+    gridstyle : str, optional (default: '-')
+        The style of grid lines. Defaults to solid. See Matplotlib's
+        documentation for valid options.
+    gridcolor : str, optional (default: 'black')
+        The color of grid lines.
+    title : str, optional (default: None)
+        The title of the plot.
+    titlefontsize : int, optional (default: 14)
+        The fontsize for the title string.
+    titlecolor : str, optional (default: 'black')
+        The color used for the title.
+    titlepos : str, optional (default: 'center')
+        The position of the title, 'left', 'right', or 'center'.
+    mnemonic_dt : str, optional (default: 'dt')
+        The trace header mnemonic specifying the sampling interval. Only used
+        when the traces are given as a Numpy structured array.
+    mnemonic_delrt: str, optional (default: 'delrt')
+        The trace header mnemonic specifying the delay recording time. Only
+        used when the traces are given as a Numpy structured array.
+    file : str, optional (default: None)
+        Produce an output file on disk using the specified file name. The
+        format of the output file is determined by the name's suffix.
+    dpi : int (default: 'figure')
+        The dots per inch to use for file output in non-vector graphics
+        formats. The special value 'figure' (default) uses the figure's
+        dpi value.
+
+    Returns
+    -------
+    figure.Figure, axes.Axes
+        Matplotlib's figure.Figure and axes.Axes object.
+    """
+    myplot = SeisPlt(data, plottype="spectrum", **kwargs)
+    return myplot._spectrum()

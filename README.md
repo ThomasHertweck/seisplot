@@ -4,7 +4,7 @@ Plotting of seismic data using variable-density or variable-area wiggle displays
 
 ## Description
 
-The seisplot module provides a single, highly flexible method *plot()* to display seismic data. A second method *toggle()* can be used to create animations that can be saved as images or movies.
+The seisplot module provides a single, highly flexible method *plot()* to display seismic data. Methods *toggle()* and *wipe()* can be used to create animations that can be saved as images or movies. There is also a convenience function called *spectrum()* to display amplitude or phase spectra of seismic data.
 
 The module was designed to get decent displays of seismic data in a way that is more convenient than going through many individual Matplotlib function calls explicitly. However, if required Matplotlib methods can also be called directly. The code is pure Python and kept deliberately simple to get students participating our Geophysics classes and exercises at university going with Python and seismic data.
 
@@ -15,6 +15,7 @@ The module was designed to get decent displays of seismic data in a way that is 
 * Highly configurable settings like colors, line widths, colorbars, labels, axis ticks, grid lines, etc.
 * Animated toggles between two or more seismic image plots.
 * Animated wipes between two seismic image plots.
+* Amplitude or phase spectrum plots.
 
 <p align="center">
 ![Image plot](img/img1.png "Variable-density image plot")
@@ -23,6 +24,7 @@ The module was designed to get decent displays of seismic data in a way that is 
 ![Fielddata plot](img/img4.png "Trace-normalized field data plot")
 ![Toggle plot](img/img5.png "Toggle of image plots")
 ![Wipe plot](img/img6.png "Wipe of image plots")
+![Spectrum plot](img/img7.png "Spectrum of Ricker wavelet")
 
 </p>
 
@@ -96,6 +98,23 @@ ani, fig, ax = seisplot.wipe(data_1, data_2, blit=True,
 ```
 Again, the returned animation-artist object can be used to save an animated image or a movie.
 
+Plotting an amplitude spectrum of seismic data (for instance, read with __seisio__) can be as simple as:
+
+```
+win = np.hamming
+fig, ax = seisplot.spectrum(data, amplitude=True, window=win, scale="dB",
+                            hlabel="Frequency (Hz)", vlabel="Magnitude (dB)",
+                            vgrid="major", hgrid="major")
+```
+A phase spectrum could be obtained in the following way:
+```
+fig, ax = seisplot.spectrum(data, phase=True, unwrap=True, degree=True,
+                            hlabel="Frequency (Hz)", vlabel="Phase (deg)",
+                            linewidth=2, title="Unwrapped phase spectrum")
+```
+These methods produce similar results to Matplotlib's *magnitude_spectrum()*, *phase_spectrum()* and *angle_spectrum()* functions but have more options. In case of entire gathers, the spectrum is averaged 
+over all traces.
+
 ## Main author
 
 Dr. Thomas Hertweck, geophysics@email.de
@@ -104,7 +123,7 @@ Dr. Thomas Hertweck, geophysics@email.de
 
 If you use the "seisplot" module and you find it useful, getting some feedback would be very much appreciated. If you would like to cite this module, please use, for instance:
 ```
-Hertweck, T. (2025). seisplot: A Python library for visualisation of seismic data. Version 1.2.0. url: https://gitlab.kit.edu/thomas.hertweck/seisplot/ (visited on 08/20/2025).
+Hertweck, T. (2025). seisplot: A Python library for visualisation of seismic data. Version 1.3.0. url: https://gitlab.kit.edu/thomas.hertweck/seisplot/ (visited on 09/18/2025).
 ```
 Adjust year, version and last visited date as required. Here's a BibTeX entry:
 ```
@@ -113,8 +132,8 @@ Adjust year, version and last visited date as required. Here's a BibTeX entry:
   year    = {2025},
   title   = {seisplot: A {P}ython library for visualisation of seismic data},
   url     = {https://gitlab.kit.edu/thomas.hertweck/seisplot/},
-  urldate = {2025-08-20},
-  version = {1.2.0}
+  urldate = {2025-09-18},
+  version = {1.3.0}
 }
 ```
 

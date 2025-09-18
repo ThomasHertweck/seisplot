@@ -6,10 +6,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from dataclasses import dataclass
+from collections.abc import Callable
 from matplotlib import cm
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 import matplotlib.animation as animation
+
+try:
+    from numba import jit
+except ImportError:
+    # log.warning("Numba not installed. Using non-optimized code.")
+    def jit(*args, **kwargs):
+        """Create dummy decorator."""
+        def decorator(func):
+            return func
+        return decorator
+
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +50,7 @@ class _PlotPara():
     plottype: str = "image"
     fig: mpl.figure.Figure = None
     ax: mpl.axes.Axes = None
+    style: str = "bmh"
     width: float = 6
     height: float = 10
     perc: float = 100.0
@@ -51,7 +64,7 @@ class _PlotPara():
     tight: bool = True
     interpolation: str = "bilinear"
     colormap: str = "seismic"
-    linewidth: float = 0.2
+    linewidth: float = None
     linecolor: str = "black"
     facecolor: str = "white"
     wiggledraw: bool = True
@@ -111,6 +124,16 @@ class _PlotPara():
     file: str = None
     dpi: str = "figure"
     label: str = None
+    ampspec: bool = False
+    phaspec: bool = False
+    window: Callable[[np.typing.ArrayLike], np.typing.ArrayLike] | np.typing.ArrayLike = None
+    nfft: int = None
+    scale: str = "linear"
+    unwrap: bool = True
+    degree: bool = False
+    fftnorm: str = "backward"
+    smooth: bool = False
+    smoothwindow: float = None
 
 
 class SeisPlt():
@@ -133,8 +156,12 @@ class SeisPlt():
         ax : mpl.axes.Axes, optional (default: None)
             An existing Matplotlib axes object to use for this plot. The
             default 'None' creates a new one.
+        style : str, optional (default: 'bmh')
+            The style sheet to use; only set in case a new figure is created.
+            Should not be used explicitly. Use a style context manager.
         plottype : str, optional (default: 'image')
-            The type of plot to create, either 'image' (default) or 'wiggle'.
+            The type of plot to create, either 'image' (default) or 'wiggle'
+            or 'spectrum'.
         width : float, optional (default: 6)
             The width of the plot (inches).
         height : float, optional (default: 10)
@@ -333,6 +360,39 @@ class SeisPlt():
             The dots per inch to use for file output in non-vector graphics
             formats. The special value 'figure' (default) uses the figure's
             dpi value.
+        amplitude : bool (default: False)
+            Whether to plot the amplitude spectrum. One of amplitude or phase
+            must be set to True.
+        phase : bool (default: False)
+            Whether to plot the phase spectrum. One of amplitude or phase must
+            be set to True.
+        window : callable or Numpy array, optional (default: None)
+            A function or a vector of length nsamples used to window the data
+            before performing a Fourier transform, typically used to taper the
+            traces at their beginning and ending. For instance, you could use
+            'window=np.hanning' to apply a Hanning window to the traces. The
+            function must be callable with a single argument, the number of
+            samples.
+        nfft : int, optional (default: nsamples)
+            The Fourier transform length. By default, the number of samples is
+            used. If nfft is larger, then zeros will be padded. If nfft is
+            smaller, then traces will be truncated.
+        fftnorm : str, optional (default: 'backward')
+            Where to apply the FFT normalization factor. The default 'backward'
+            applies no scaling in the forward transform. The alternative
+            'forward' applies the full scaling in the forward transform, and
+            'ortho' applies 1/sqrt(nfft) on both the forward and backward.
+            transform. Note that there is always a scaling factor of 2 in the
+            amplitude spectrum as only positive frequencies are displayed.
+        scale : str, optional (default 'linear')
+            Applies to amplitude spectra only. Whether to plot a linear amplitude
+            spectrum (default), or an amplitude spectrum in dezibel ('dB').
+        unwrap : bool, optional (default: True)
+            Applies to phase spectra only. Whether to unwrap the phase spectrum
+            or not.
+        degree : bool, optional (default: False)
+            Applies to phase spectra only. Whether to display the phase in
+            degrees or not; default is a display in radians.
         """
         self._ensemble = data
         self._is_structured = False
@@ -350,11 +410,12 @@ class SeisPlt():
     def _parse_para(self, **kwargs):
         """Parse parameters and initialize variables of PlotPara."""
         self._par.plottype = kwargs.pop("plottype", self._par.plottype).lower()
-        if self._par.plottype not in ["image", "wiggle"]:
+        if self._par.plottype not in ["image", "wiggle", "spectrum"]:
             raise ValueError(f"Unknown value '{self._par.plottype}' for parameter 'plottype'.")
 
         self._par.fig = kwargs.pop("fig", self._par.fig)
         self._par.ax = kwargs.pop("ax", self._par.ax)
+        self._par.style = kwargs.pop("style", self._par.style)
         self._par.width = kwargs.pop("width", self._par.width)
         self._par.height = kwargs.pop("height", self._par.height)
         self._par.label = kwargs.pop("label", self._par.label)
@@ -457,6 +518,36 @@ class SeisPlt():
         if self._par.dpi != "figure" and self._par.dpi < 72:
             raise ValueError(f"Value ({self._par.dpi}) too small for parameter 'dpi'.")
 
+        if self._par.plottype == "spectrum":
+            if self._par.linewidth is None:
+                self._par.linewidth = 1
+            self._par.ampspec = kwargs.pop("amplitude", self._par.ampspec)
+            self._par.phaspec = kwargs.pop("phase", self._par.phaspec)
+            self._par.window = kwargs.pop("window", self._par.window)
+            self._par.nfft = kwargs.pop("nfft", self._par.nfft)
+            self._par.unwrap = kwargs.pop("unwrap", self._par.unwrap)
+            self._par.scale = kwargs.pop("scale", self._par.scale).lower()
+            self._par.smooth = kwargs.pop("smooth", self._par.smooth)
+            self._par.smoothwindow = kwargs.pop("smoothwindow", self._par.smoothwindow)
+            self._par.fftnorm = kwargs.pop("fftnorm", self._par.fftnorm).lower()
+            if self._par.fftnorm not in ["backward", "forward", "ortho"]:
+                raise ValueError(f"Parameter 'fftnorm' ({self._par.fftnorm}) must be 'backward', 'forward' or 'ortho.")
+            self._par.degree = kwargs.pop("degree", self._par.degree)
+            if self._par.scale not in ["linear", "db"]:
+                raise ValueError(f"Parameter 'scale' ({self._par.scale}) must be 'linear' or 'dB'.")
+            if self._par.ampspec is False and self._par.phaspec is False:
+                raise ValueError("Both parameters 'amplitude' and 'phase' are False, nothing to draw.")
+            elif self._par.ampspec and self._par.phaspec:
+                raise ValueError("Both parameters 'amplitude' and 'phase' are True - reset one of them.")
+            if self._par.ampspec:
+                if self._par.scale == "linear" and self._par.vaxisend is None:
+                    self._par.vaxisend = 0
+                elif self._par.scale == "db" and self._par.vaxisbeg is None:
+                    self._par.vaxisbeg = 0
+        else:
+            if self._par.linewidth is None:
+                self._par.linewidth = 0.2
+
         if kwargs:
             for key, val in kwargs.items():
                 log.warning("Unknown argument '%s' with value '%s'.", key, str(val))
@@ -494,24 +585,33 @@ class SeisPlt():
             self._par.vaxis = np.arange(delay, delay+(ns-1)*dt+dt/2, dt)
         else:
             self._par.vaxis = np.atleast_1d(self._par.vaxis)  # make sure we have a numpy array
-
-        if self._par.haxis is None:
-            self._par.haxis = np.arange(nt)
-        elif isinstance(self._par.haxis, str):
-            mnemonic = self._par.haxis
-            if self._is_structured:
-                self._par.haxis = np.atleast_1d(self._ensemble[mnemonic])
-            else:
-                self._par.haxis = np.arange(nt)
-        else:
-            self._par.haxis = np.atleast_1d(self._par.haxis)  # make sure we have a numpy array
+            dt = self._par.vaxis[1] - self._par.vaxis[0]
 
         if len(self._par.vaxis) != ns:
             raise ValueError(f"The size of 'vaxis' {len(self._par.vaxis)} "
                              f"does not match the data (ns={ns}).")
-        if len(self._par.haxis) != nt:
-            raise ValueError(f"The size of 'haxis' {len(self._par.haxis)} "
-                             f"does not match the data (nt={nt}).")
+
+        if self._par.plottype != "spectrum":
+            if self._par.haxis is None:
+                self._par.haxis = np.arange(nt)
+            elif isinstance(self._par.haxis, str):
+                mnemonic = self._par.haxis
+                if self._is_structured:
+                    self._par.haxis = np.atleast_1d(self._ensemble[mnemonic])
+                else:
+                    self._par.haxis = np.arange(nt)
+            else:
+                self._par.haxis = np.atleast_1d(self._par.haxis)  # make sure we have a numpy array
+            if len(self._par.haxis) != nt:
+                raise ValueError(f"The size of 'haxis' {len(self._par.haxis)} "
+                                 f"does not match the data (nt={nt}).")
+        else:
+            if self._par.nfft is None:
+                self._par.nfft = ns
+            if self._par.haxis is None:
+                self._par.haxis = np.fft.rfftfreq(self._par.nfft, d=dt)
+            else:
+                raise ValueError("In 'spectrum' mode, paramter 'haxis' needs to be 'None'.")
 
         if self._par.fig is None and self._par.ax is None:
             self._setup_figure()
@@ -556,7 +656,7 @@ class SeisPlt():
 
     def _setup_figure(self):
         """Create a new figure if necessary."""
-        plt.style.use('bmh')
+        plt.style.use(self._par.style)
         self._par.fig, self._par.ax = \
             plt.subplots(1, 1, figsize=(self._par.width, self._par.height))
 
@@ -760,7 +860,7 @@ class SeisPlt():
 
     def _set_colorbar(self, axi):
         """Set the colorbar."""
-        if self._par.plottype == "wiggle" or axi is None:
+        if self._par.plottype  in ["wiggle", "spectrum"] or axi is None:
             return
         if self._par.colorbar:
             cbar = plt.colorbar(axi, ax=self._par.ax, orientation="vertical",
@@ -897,3 +997,97 @@ class SeisPlt():
         #       a known issue also experienced by others
 
         return ani, self._par.fig, self._par.ax
+
+    def _spectrum(self):
+        self._pre_show()
+        nt, ns = self._data.shape
+        dt = (self._par.vaxis[1] - self._par.vaxis[0]).astype(np.float64)
+        df = (self._par.haxis[1] - self._par.haxis[0]).astype(np.float64)
+
+        label = "_dummy"
+        if self._par.label is not None:
+            label = self._par.label
+
+        if self._par.window is not None:
+            winbuf = self._par.window(ns).astype(np.float64)
+        else:
+            winbuf = np.ones(ns, dtype=np.float64)
+        spec = dt*np.fft.rfft(self._data.astype(np.float64)*winbuf, n=self._par.nfft, norm=self._par.fftnorm)
+
+        if self._par.haxisbeg is None:
+            self._par.haxisbeg = self._par.haxis[0]
+        if self._par.haxisend is None:
+            self._par.haxisend = self._par.haxis[-1]
+
+        mask = np.argwhere(np.logical_and(self._par.haxis >= self._par.haxisbeg,
+                                          self._par.haxis <= self._par.haxisend))
+
+        amp_ = np.abs(spec)
+        pha_ = np.angle(spec)
+        freq_ = self._par.haxis[mask]
+
+        # When A = rfft(a) and fs is the sampling frequency, A[0] contains the
+        # zero-frequency term 0*fs, which is real due to Hermitian symmetry.
+        # If n is even, A[-1] contains the term representing both positive and
+        # negative Nyquist frequency (+fs/2 and -fs/2), and must also be purely
+        # real. If n is odd, there is no term at fs/2; A[-1] contains the largest
+        # positive frequency (fs/2*(n-1)/n), and is complex in the general case.
+
+        if self._par.ampspec:
+            # average over all traces
+            amp = np.mean(amp_, axis=0)
+            if self._par.smooth:
+                if self._par.smoothwindow is None:
+                    self._par.smoothwindow = 5*df
+                nwin = int(self._par.smoothwindow/df)
+                if nwin < 1:
+                    nwin = 1
+                ampspec = _mva(amp, nwin)
+            else:
+                ampspec = amp
+            if self._par.scale != "linear":
+                # ampspec[ampspec <= 0.0] = np.finfo(np.float64).eps
+                with np.errstate(all="ignore"):
+                    ampspec = 20.*np.log10(ampspec/np.max(ampspec))
+            # mask array to get proper default axis ranges rather than just cutting axes afterwards
+            self._par.ax.plot(freq_, ampspec[mask], color=self._par.linecolor,
+                              lw=self._par.linewidth, label=label)
+        else:
+            # DC and Nyquist component have no imaginary part as input is real;
+            # explicitly setting phase to zero helps unwrapping later on
+            pha_[:, 0] = 0.0
+            if np.mod(self._par.nfft, 2) == 0:
+                pha_[:, -1] = 0.0
+            # average over all traces
+            pha = np.mean(pha_, axis=0)
+            if self._par.unwrap:
+                pha = np.unwrap(pha)
+            if self._par.degree:
+                pha = np.rad2deg(pha)
+            # mask array to get proper default axis ranges rather than just cutting axes afterwards
+            self._par.ax.plot(freq_, pha[mask], color=self._par.linecolor,
+                              lw=self._par.linewidth, label=label)
+
+        self._post_show(None)
+        if self._par.file is not None:
+            self._par.fig.savefig(self._par.file, dpi=self._par.dpi, bbox_inches='tight')
+
+        return self._par.fig, self._par.ax
+
+
+@jit(nopython=True)
+def _mva(data, filter_size):
+    indexer = filter_size // 2
+    temp = np.zeros((filter_size, ), dtype=data.dtype)
+    data_final = np.zeros_like(data)
+    nrow = len(data)
+    for j in np.arange(nrow):
+        for z in np.arange(filter_size):
+            if j+z-indexer < 0:
+                temp[z] = data[0]
+            elif j+indexer > nrow-1:
+                temp[z] = data[-1]
+            else:
+                temp[z] = data[j+z-indexer]
+        data_final[j] = temp.mean()
+    return data_final
