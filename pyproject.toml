@@ -41,7 +41,9 @@ keywords = [
   "display",
   "image", "wiggle",
   "variable-density",
-  "variable-area"
+  "variable-area",
+  "animation", "spectrum",
+  "amplitude", "phase"
 ]
 
 [project.urls]
