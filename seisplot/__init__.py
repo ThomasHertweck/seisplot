@@ -10,7 +10,7 @@ License: GNU Lesser General Public License, Version 3
          https://www.gnu.org/licenses/lgpl-3.0.html
 """
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 __author__ = "Thomas Hertweck"
 __copyright__ = "(c) 2025 Thomas Hertweck"
 __license__ = "GNU Lesser General Public License, Version 3"
@@ -222,6 +222,37 @@ def plot(data, **kwargs):
         The color used for the title.
     titlepos : str, optional (default: 'center')
         The position of the title, 'left', 'right', or 'center'.
+    overlay : str, optional (default: None)
+        The trace header mnemonic to plot on top of the data. Only works if
+        data are provided as structured array. In addition to trace header
+        mnemonics, the special keyword 'rms' can be supplied which plots
+        each traces RMS amplitude value on top of the data display (also
+        works if data are provided as unstructured array). This only makes
+        real sense if seismic data are plotted (as opposed to, for instance,
+        velocity fields). If used with colorbar=True, you probably need to
+        increase colorbarpad as the colorbar will otherwise interfere with
+        the overlay axis.
+    overlaycolor : str, optional (default: 'red')
+        The color of the overlay plot.
+    overlaylabel : str, optional (default: None)
+        Label on vertical overlay axis.
+    overlaylinewidth : float, optional (default: 0.8)
+        Linewidth of overlay display.
+    overlaymajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the vertical
+        overlay axis. Defaults to Matplotlib's standard algorithm.
+    overlayminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the vertical
+        overlay axis. Must be smaller than 'overlaymajorticks'. Defaults
+        to Matplotlib's standard behavior.
+    overlayaxisbeg : float, optional (default: None)
+        The first value to draw on the vertical overlay axis. Defaults to
+        the smallest value of the quantity to be plotted if 'None'.
+    overlayaxisend : float, optional (default: None)
+        The last value to draw on the vertical overlay axis. Defaults to
+        the largest value  of the quantity to be plotted if 'None'.
+    overlayinvert: bool, optional (default: False)
+        Invert the vertical overlay axis.
     mnemonic_dt : str, optional (default: 'dt')
         The trace header mnemonic specifying the sampling interval. Only used
         when the traces are given as a Numpy structured array.
@@ -238,8 +269,9 @@ def plot(data, **kwargs):
 
     Returns
     -------
-    figure.Figure, axes.Axes
-        Matplotlib's figure.Figure and axes.Axes object.
+    figure.Figure, axes.Axes or figure.Figure, (axes.Axes, axes.Axes)
+        Matplotlib's figure.Figure and axes.Axes object. If an overlay
+        is used, the twinx-axis is returned, too.
     """
     myplot = SeisPlt(data, **kwargs)
     return myplot.show()

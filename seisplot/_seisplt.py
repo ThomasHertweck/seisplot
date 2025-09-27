@@ -50,6 +50,7 @@ class _PlotPara():
     plottype: str = "image"
     fig: mpl.figure.Figure = None
     ax: mpl.axes.Axes = None
+    ax_ovl: mpl.axes.Axes = None
     style: str = "bmh"
     width: float = 6
     height: float = 10
@@ -134,7 +135,15 @@ class _PlotPara():
     fftnorm: str = "backward"
     smooth: bool = False
     smoothwindow: float = None
-
+    overlay: str = None
+    overlaycolor: str = "red"
+    overlaylabel: str = None
+    overlaylinewidth: float = 0.8
+    ovlmajorticks: float = None
+    ovlminorticks: float = None
+    ovlaxisbeg: float = None
+    ovlaxisend: float = None
+    overlayinvert: bool = False
 
 class SeisPlt():
     """Class to handle seismic data displays."""
@@ -347,6 +356,37 @@ class SeisPlt():
             The color used for the title.
         titlepos : str, optional (default: 'center')
             The position of the title, 'left', 'right', or 'center'.
+        overlay : str, optional (default: None)
+            The trace header mnemonic to plot on top of the data. Only works if
+            data are provided as structured array. In addition to trace header
+            mnemonics, the special keyword 'rms' can be supplied which plots
+            each traces RMS amplitude value on top of the data display (also
+            works if data are provided as unstructured array). This only makes
+            real sense if seismic data are plotted (as opposed to, for instance,
+            velocity fields). If used with colorbar=True, you probably need to
+            increase colorbarpad as the colorbar will otherwise interfere with
+            the overlay axis.
+        overlaycolor : str, optional (default: 'red')
+            The color of the overlay plot.
+        overlaylabel : str, optional (default: None)
+            Label on vertical overlay axis.
+        overlaylinewidth : float, optional (default: 0.8)
+            Linewidth of overlay display.
+        overlaymajorticks: float, optional (default: None)
+            The spacing at which to draw major ticks along the vertical
+            overlay axis. Defaults to Matplotlib's standard algorithm.
+        overlayminorticks: float, optional (default: None)
+            The spacing at which to draw minor ticks along the vertical
+            overlay axis. Must be smaller than 'overlaymajorticks'. Defaults
+            to Matplotlib's standard behavior.
+        overlayaxisbeg : float, optional (default: None)
+            The first value to draw on the vertical overlay axis. Defaults to
+            the smallest value of the quantity to be plotted if 'None'.
+        overlayaxisend : float, optional (default: None)
+            The last value to draw on the vertical overlay axis. Defaults to
+            the largest value  of the quantity to be plotted if 'None'.
+        overlayinvert: bool, optional (default: False)
+            Invert the vertical overlay axis.
         mnemonic_dt : str, optional (default: 'dt')
             The trace header mnemonic specifying the sampling interval. Only used
             when the traces are given as a Numpy structured array.
@@ -517,6 +557,15 @@ class SeisPlt():
         self._par.dpi = kwargs.pop("dpi", self._par.dpi)
         if self._par.dpi != "figure" and self._par.dpi < 72:
             raise ValueError(f"Value ({self._par.dpi}) too small for parameter 'dpi'.")
+        self._par.overlay = kwargs.pop("overlay", self._par.overlay)
+        self._par.overlaycolor = kwargs.pop("overlaycolor", self._par.overlaycolor)
+        self._par.overlaylabel = kwargs.pop("overlaylabel", self._par.overlaylabel)
+        self._par.overlaylinewidth = kwargs.pop("overlaylinewidth", self._par.overlaylinewidth)
+        self._par.ovlmajorticks = kwargs.pop("overlaymajorticks", self._par.ovlmajorticks)
+        self._par.ovlminorticks = kwargs.pop("overlayminorticks", self._par.ovlminorticks)
+        self._par.ovlaxisbeg = kwargs.pop("overlayaxisbeg", self._par.ovlaxisbeg)
+        self._par.ovlaxisend = kwargs.pop("overlayaxisend", self._par.ovlaxisend)
+        self._par.overlayinvert = kwargs.pop("overlayinvert", self._par.overlayinvert)
 
         if self._par.plottype == "spectrum":
             if self._par.linewidth is None:
@@ -627,6 +676,7 @@ class SeisPlt():
         self._set_grid()
         self._set_label()
         self._set_colorbar(axi)
+        self._overlay()
         if self._par.tight:
             self.tight()
 
@@ -636,8 +686,9 @@ class SeisPlt():
 
         Returns
         -------
-        figure.Figure, axes.Axes
-            Matplotlib's figure.Figure and axes.Axes object.
+        figure.Figure, axes.Axes or figure.Figure, (axes.Axes, axes.Axes)
+            Matplotlib's figure.Figure and axes.Axes object. If an overlay
+            is used, the twinx-axis is returned, too.
         """
         self._pre_show()
 
@@ -652,7 +703,10 @@ class SeisPlt():
         if self._par.file is not None:
             self._par.fig.savefig(self._par.file, dpi=self._par.dpi, bbox_inches='tight')
 
-        return self._par.fig, self._par.ax
+        if self._par.ax_ovl is not None:
+            return self._par.fig, (self._par.ax, self._par.ax_ovl)
+        else:
+            return self._par.fig, self._par.ax
 
     def _setup_figure(self):
         """Create a new figure if necessary."""
@@ -878,6 +932,59 @@ class SeisPlt():
                                 labelcolor=self._par.labelcolor,
                                 color=self._par.labelcolor)
             cbar.ax.get_yaxis().labelpad = self._par.colorbarlabelpad
+
+    def _overlay(self):
+        """Plot header overlay."""
+        if self._par.overlay is None:
+            return
+
+        if self._par.overlay == "rms":
+            val = np.sqrt(np.mean(self._data**2, axis=-1, keepdims=True))
+            val[val == 0] = np.finfo(np.float32).eps
+        else:
+            if not self._is_structured:
+                log.warning("Data not supplied as Numpy structured array, cannot overlay header mnemonic '%s'.",
+                            self._par.overlay)
+                return
+            val = np.atleast_1d(self._ensemble[self._par.overlay])
+
+        if len(val) != len(self._par.haxis):
+            log.warning("Length of overlay vector differs from length of horizontal axis - cancelling overlay.")
+            return
+
+        self._par.ax_ovl = self._par.ax.twinx()
+        self._par.ax_ovl.plot(self._par.haxis, val, color=self._par.overlaycolor,
+                              linewidth=self._par.overlaylinewidth)
+        if self._par.ovlaxisbeg is None:
+            self._par.ovlaxisbeg = val.min()
+        if self._par.ovlaxisend is None:
+            self._par.ovlaxisend = val.max()
+        self._par.ax_ovl.set_ylim(self._par.ovlaxisbeg, self._par.ovlaxisend)
+        if self._par.overlaylabel is not None:
+            self._par.ax_ovl.set_ylabel(self._par.overlaylabel,
+                                        fontsize=self._par.labelfontsize,
+                                        color=self._par.overlaycolor,
+                                        loc=self._par.vlabelpos)
+        self._par.ax_ovl.yaxis.label.set_color(self._par.overlaycolor)
+        self._par.ax_ovl.grid(visible=False, axis='both')
+        self._par.ax_ovl.tick_params(which='major', direction=self._par.tickdirection,
+                                     labelsize=self._par.ticklabelsize,
+                                     length=self._par.majorticklength,
+                                     labelcolor=self._par.overlaycolor,
+                                     color=self._par.overlaycolor,
+                                     width=self._par.majortickwidth)
+        self._par.ax_ovl.tick_params(which='minor', direction=self._par.tickdirection,
+                                     length=self._par.minorticklength,
+                                     labelcolor=self._par.overlaycolor,
+                                     color=self._par.overlaycolor,
+                                     width=self._par.minortickwidth)
+        if self._par.vticklabelrot is not None:
+            self._par.ax_ovl.tick_params(axis='y', labelrotation=self._par.vticklabelrot)
+        if self._par.ovlmajorticks is not None:
+            self._par.ax_ovl.yaxis.set_major_locator(MultipleLocator(self._par.ovlmajorticks))
+        if self._par.ovlminorticks is not None:
+            self._par.ax_ovl.yaxis.set_minor_locator(MultipleLocator(self._par.ovlminorticks))
+        self._par.ax_ovl.yaxis.set_inverted(self._par.overlayinvert)
 
     def _toggle(self, alldata, interval=None, repeat_delay=None, blit=False):
         """Toggle seismic plots."""
