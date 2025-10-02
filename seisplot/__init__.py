@@ -1,8 +1,8 @@
 """
 Plotting of seismic files.
 
-The seisplot Python module provides basic functionality to display
-seismic data in typical standard image or wiggle displays.
+The seisplot Python module provides functionality to display
+seismic data and associated attributes and header mnemonics.
 
 Author & Copyright: Dr. Thomas Hertweck, geophysics@email.de
 
@@ -937,3 +937,283 @@ def spectrum(data, **kwargs):
     """
     myplot = SeisPlt(data, plottype="spectrum", **kwargs)
     return myplot._spectrum()
+
+
+def crossplot(data, **kwargs):
+    """
+    Create (trace header) crossplots.
+
+    Parameters
+    ----------
+    data : Numpy structured array or Numpy array (or Pandas DataFrame)
+        The seismic data (trace headers) to crossplot as Numpy structured array.
+        If available, the actual seismic array (traces) in data["data"] should
+        have shape (ntraces, nsamples). If you only color the crossplot by
+        header values and not by attributes determined from the seismic data
+        themselves, the input can also be a Numpy structured array with headers
+        only (no data["data"] included), or a Pandas DataFrame with trace
+        headers in columns and one row for each trace. In other words,
+        data[hkey] etc. must work and provide an array that has a length that
+        is consistent with the number of overall traces.
+    fig : mpl.figure.Figure, optional (default: None)
+        An existing Maplotlib figure to use. The default 'None' creates
+        a new one.
+    ax : mpl.axes.Axes, optional (default: None)
+        An existing Matplotlib axes object to use for this plot. The
+        default 'None' creates a new one.
+    style : str, optional (default: 'bmh')
+        The style sheet to use; only set in case a new figure is created.
+        Should not be used explicitly. Use a style context manager.
+    hkey : str (default: None)
+        Header mnemonic to define the horizontal axis of crossplots.
+    vkey : str (default: None)
+        Header mnemonic to define the vertical axis of crossplots.
+    hscale : float, optional (default: 1.0)
+        Scaling factor to apply to the values of hkey.
+    vscale : float, optional (default: 1.0)
+            Scaling factor to apply to the values of vkey.
+    hinvert : bool, optional (default: False)
+        Invert the horizontal axis if True.
+    vinvert : bool, optional (default: False)
+        Invert the vertical axis (default: False)
+    color_by : str, optional (default: None)
+        How to color the points of the crossplot. Either 'None' to use
+        Matplotlib's default, or the name of a single color (e.g., 'red'),
+        or one of the following strings:
+        'header' to color the points based on values of another header
+        mnemonic; 'rms' to color each point by the RMS amplitude value of
+        the corresponding trace; 'mean' to color by the average value of
+        a trace (this allows you to easily spot a trace bias), 'max' to
+        color by a trace's maximum value, 'min' to color by a trace's
+        minimum value, 'median' to color by a trace's median amplitude,
+        or 'fpeak' to color by the peak frequency of the corresponding
+        trace. Obviously, all data-driven color approaches require the
+        actual data to be available, not just pure trace header keys. If
+        color_by is "array", then values can be passed as array using the
+        parameter 'ckey'.
+    ckey : str or Numpy array, optional (default: None)
+        If color_by is 'header', then ckey specifies the header mnemonic
+        to use to color the crossplot points. If color_by is "array", then
+        ckey specifies the values to use to colorize the data. The array
+        must have a length consistent with the number of traces in data.
+    color_norm : str, optional (default: 'linear')
+        The normalization method used to scale scalar data to the [0, 1]
+        range before mapping to colors. Typically a scale name like, for
+        instance, 'linear', 'log', etc. - see Matplotlib's documenatation
+        for valid entries.
+    size_by : str, optional (default: None)
+        The size of each marker can be based on values of another header
+        mnemonic. If so, specify the header mnemonic here.
+    size_scale : float (default: 1.0)
+        The marker size specified by the size_by header is in points**2.
+        The parameter size_scale can be used to scale the values of the
+        header mnemonic 'size_by' to a suitable range.
+    marker : str, optional (default: 'o')
+        The marker style. See Matplotlib's documentation for valid entries.
+    markersize : float, optional (default: None)
+        If a constant marker size is used rather than a variable size based
+        on another header mnemonic (see parameter 'size_by'), the this
+        parameter specifies the size of each marker in points**2.
+    edgecolor : str, optional (default: 'face')
+        The edge color of the marker. By default the edge color is the same
+        as the face color.
+    equal_axes : bool, optional (default: False)
+        Whether to plot horizontal and vertical axes constrained (True) or
+        not consrrained (False).
+    histogram : bool, optional (default: False)
+        Draw a histogram of the color_by values at the top of the crossplot.
+    histogram_colorize : bool, optional (default: True)
+        Colorize the histogram such that each histogram bar has the same
+        color as the value on the chosen colormap.
+    histogram_color : str, optional (default: "gray")
+        The color of the histogram if histogram_colorize is False.
+    histogram_vpos : float, optional (default: 1.08)
+        The vertical position of the histogram in mpl.Axes coordinates.
+        The default of 1.08 leaves a small gap and puts the histogram at
+        the top of the crossplot.
+    histogram_height : float, optional (default: 0.18)
+        The height of the histogram in terms of mpl.Axes coordinates. The
+        default makes the histogram about a fifth in height compared to the
+        crossplot.
+    histogram_hlabel : str, optional (default: "auto")
+        The label at the horizontal axis of the histogram. The default
+        "auto" chooses the label automatically. Set to None in order to
+        have no label at all.
+    histogram_vlabel : str, optional (default: "auto")
+        The label at the vertical axis of the histogram. The default
+        "auto" chooses the label automatically. Set to None in order to
+        have no label at all.
+    histogram_density : bool, optional (default: False)
+        If set to True, the histogram contains the probability density at
+        each bin rather than a count.
+    histogram_bins : int or str, optional (default: "auto")
+        The number of bins. Either an integer specifying the number of bins,
+        or the string "auto" to have the number of bins determined
+        automatically. See numpy.histogram for details on how this is done.
+    window : callable or Numpy array, optional (default: None)
+        A function or a vector of length nsamples used to window the data
+        before performing a Fourier transform, typically used to taper the
+        traces at their beginning and ending. For instance, you could use
+        'window=np.hanning' to apply a Hanning window to the traces. The
+        function must be callable with a single argument, the number of
+        samples. Only used if color_by is 'fpeak'.
+    smooth : bool, optional (default: False)
+        Smooth the amplitude spectrum using moving average.
+    smoothwindow : float, optional (default: 5*df)
+        The length of the moving average window for smoothing (in Hz).
+    width : float, optional (default: 6)
+        The width of the plot (inches).
+    height : float, optional (default: 10)
+        The height of the plot (inches).
+    label : str, optional (default: None)
+        Label for potential legend of crossplot.
+    lowclip : float, optional (default: None)
+        Clip value at the lower end. The default of 'None' means the lowest
+        value is used.
+    highclip : float, optional (default: None)
+        Clip value at the upper end. Must be larger than 'lowclip' if both
+        are given. The default of 'None' means the highest value is used.
+    alpha : float, optional (default: 1.0)
+        The transparency of marker fills. Must be between 0 and 1. The default
+        of 1 means no transparency.
+    tight : bool, optional (default: True)
+        Flag whether to apply matplotlib's tight layout.
+    colormap : str, optional (default: 'jet')
+        The colormap for crossplots. See Matplotlib's documentation for valid
+        strings. You can also provide the name of a function that returns a
+        colormap.
+    linewidth : float, optional (default: 0)
+        The linewidth of edges in crossplots.
+    facecolor : str, optional (default: 'white')
+        The background color of the actual plot area.
+    vaxisbeg : float, optional (default: None)
+        The first value to draw on the vertical axis. If 'None', Matplotlib's
+        default applies.
+    vaxisend : float, optional (default: None)
+        The last value to draw on the vertical axis. If 'None', Matplotlib's
+        default applies.
+    vlabel : string, optional (default: None)
+        Label on vertical axis.
+    vlabelpos : string, optional  (default: 'center')
+        Position of vertical label, 'bottom', 'top' or 'center'.
+    haxisbeg : float, optional (default: None)
+        The first value to draw on the horizontal axis. If 'None', Matplotlib's
+        default applies.
+    haxisend : float, optional (default: None)
+        The last value to draw on the horizontal axis. If 'None', Matplotlib's
+        default applies.
+    hlabel : string, optional (default: None)
+        Label on horizontal axis.
+    hlabelpos : string, optional (default: 'center')
+        Position of horizontal label, 'left', 'right' or 'center'.
+    labelfontsize: int, optional (default: 12)
+        The font size for labels.
+    labelcolor: str, optional (default: 'black')
+        The color to use for labels.
+    vmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the vertical axis.
+        Defaults to Matplotlib's standard algorithm.
+    vminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the vertical axis.
+        Must be smaller than 'vmajorticks'. Defaults to Matplotlib's
+        standard behavior.
+    hmajorticks: float, optional (default: None)
+        The spacing at which to draw major ticks along the horizontal axis.
+        Defaults to Matplotlib's standard algorithm.
+    hminorticks: float, optional (default: None)
+        The spacing at which to draw minor ticks along the horizontal axis.
+        Must be smaller than 'hmajorticks'. Defaults to Matplotlib's
+        standard behavior.
+    majorticklength : float, optional (default: 6)
+        The length of major ticks.
+    minorticklength : float, optional (default: 4)
+        The length of minor ticks.
+    majortickwidth : float, optional (default: 1)
+        The width of major ticks.
+    minortickwidth : float, optional (default: 0.8)
+        The width of minor ticks.
+    ticklabelsize : int, optional (default: 10)
+        The font size of tick labels.
+    tickdirection : str, optional (default: 'out')
+        Draw ticks to the outside ('out') or inside ('in').
+    ticktop : boolean, optional (default: False)
+        Draw ticks and horizontal label at the top (True) instead of bottom
+        (False).
+    vticklabelrot : float, optional (default: 0)
+        Rotation angle of vertical tick labels (in degrees).
+    hticklabelrot : float, optional (default: None, i.e., 0)
+        Rotation angle of horizontal tick labels (in degrees).
+    vtickformat : str, optional (default: None, i.e., 0)
+        The format to use for vertical tick labels. Defaults to
+        Matplotlib's standard behavior.
+    htickformat : str, optional (default: None)
+        The format to use for horizontal tick labels. Defaults to
+        Matplotlib's standard behavior.
+    vgrid : str, optional (default: None)
+        If 'None', no grid will be drawn. If set to 'major', a grid for
+        major ticks will be drawn. If set to 'both', a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the vertical axis, i.e., they are displayed horizontally.
+    hgrid : str, optional (default: None)
+        If 'None', no grid will be drawn. If set to 'major', a grid for
+        major ticks will be drawn. If set to 'both', a grid for major
+        and minor ticks will be drawn. This option sets grid lines for
+        the horizontal axis, i.e., they are displayed vertically.
+    gridlinewidth : float, optional (default: 0.8)
+        The linewidth of grid lines.
+    gridlinealpha : float, optional (default: 0.5)
+        The alpha (transparency) value for grid lines.
+    gridstyle : str, optional (default: '-')
+        The style of grid lines. Defaults to solid. See Matplotlib's
+        documentation for valid options.
+    gridcolor : str, optional (default: 'black')
+        The color of grid lines.
+    colorbar : bool, optional (default: False)
+        Whether to draw a colorbar for image plots.
+    colorbarlabel : str, optional (default: None)
+        The label (typically indicating units) of the colorbar.
+    colorbarshrink : float, optional (default: 1.0)
+        The vertical scaling factor for the size of the colorbar in crossplots.
+    colorbarfraction: float, optional (default: 0.1)
+        The horizontal fraction of the entire figure size that the colorbar
+        may use. Default is 10%.
+    colorbarpad : float, optional (default: 0.02)
+        Padding between the figure and the colorbar. Defaults to 2%.
+    colorbarlabelpad : float, optional (default: 0)
+        Padding applied between the colorbar and the colorbarlabel.
+    colorbarticklabelsize : int, optional (default: 10)
+        The font size of colorbar tick labels.
+    colorbarlabelsize : int, optional (default: 10)
+        The font size of the colorbar label.
+    colorbarbins : int,. optional (default: None)
+        The number of bins to use for determining colorbar ticks. The
+        default of 'None' uses Matplotlib's standard behavior.
+    title : str, optional (default: None)
+        The title of the plot.
+    titlefontsize : int, optional (default: 14)
+        The fontsize for the title string.
+    titlecolor : str, optional (default: 'black')
+        The color used for the title.
+    titlepos : str, optional (default: 'center')
+        The position of the title, 'left', 'right', or 'center'.
+    mnemonic_dt : str, optional (default: 'dt')
+        The trace header mnemonic specifying the sampling interval. Only used
+        when the traces are given as a Numpy structured array.
+    mnemonic_delrt: str, optional (default: 'delrt')
+        The trace header mnemonic specifying the delay recording time. Only
+        used when the traces are given as a Numpy structured array.
+    file : str, optional (default: None)
+        Produce an output file on disk using the specified file name. The
+        format of the output file is determined by the name's suffix.
+    dpi : int (default: 'figure')
+        The dots per inch to use for file output in non-vector graphics
+        formats. The special value 'figure' (default) uses the figure's
+        dpi value.
+
+    Returns
+    -------
+    figure.Figure, axes.Axes
+        Matplotlib's figure.Figure and axes.Axes object.
+    """
+    myplot = SeisPlt(data, plottype="crossplot", **kwargs)
+    return myplot._crossplot()

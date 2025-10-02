@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from collections.abc import Callable
 from matplotlib import cm
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from matplotlib.colors import Normalize
 
 import matplotlib.animation as animation
 
@@ -64,7 +65,7 @@ class _PlotPara():
     alpha: float = 1.0
     tight: bool = True
     interpolation: str = "bilinear"
-    colormap: str = "seismic"
+    colormap: str = None
     linewidth: float = None
     linecolor: str = "black"
     facecolor: str = "white"
@@ -108,7 +109,7 @@ class _PlotPara():
     gridcolor: str = "black"
     colorbar: bool = False
     colorbarlabel: str = None
-    colorbarshrink: float = 0.4
+    colorbarshrink: float = None
     colorbarfraction: float = 0.1
     colorbarpad: float = 0.02
     colorbarlabelpad: float = 0
@@ -144,6 +145,31 @@ class _PlotPara():
     ovlaxisbeg: float = None
     ovlaxisend: float = None
     overlayinvert: bool = False
+    hkey: str = None
+    hinvert: bool = False
+    hscale: float = 1.0
+    vkey: str = None
+    vscale: float = 1.0
+    vinvert: bool = False
+    color_by: str = "header"
+    ckey: str = None
+    size_by: str = None
+    size_scale: float = 1.0
+    marker: str = "o"
+    markersize: float = 20
+    edgecolor: str = "face"
+    equal_axes: bool = False
+    color_norm: str = "linear"
+    histogram: bool = False
+    histogram_colorize: bool = True
+    histogram_color: str ="gray"
+    histogram_vpos: float = 1.08
+    histogram_height: float = 0.18
+    histogram_hlabel: str = "auto"
+    histogram_vlabel: str = "auto"
+    histogram_density: bool = False
+    histogram_bins: str = "auto"
+
 
 class SeisPlt():
     """Class to handle seismic data displays."""
@@ -207,18 +233,19 @@ class SeisPlt():
             Must be larger than 'lowclip' if both are given. The default of
             'None' means the highest data value is used.
         alpha : float, optional (default: 1.0)
-            The transparency of image plots or wiggle fills. Must be between
-            0 and 1. The default of 1 means no transparency.
+            The transparency of image plots or wiggle fills or crossplot fills.
+            Must be between 0 and 1. The default of 1 means no transparency.
         tight : bool, optional (default: True)
             Flag whether to apply matplotlib's tight layout.
         interpolation : str, optional (default: 'bilinear')
             The type of interpolation for image plots. See Matplotlib's
             documentation for valid strings.
-        colormap : str, optional (default: 'seismic')
-            The colormap for image plots. See Matplotlib's documentation for
-            valid strings.
-        linewidth : float, optional (default: 0.2)
-            The width of lines in wiggle plots.
+        colormap : str, optional (default: 'seismic' or 'jet')
+            The colormap for image plots (default: 'seismic') or crossplots
+            (default: 'jet'). See Matplotlib's documentation for valid strings.
+        linewidth : float, optional (default: 0.2 or 0)
+            The width of lines in wiggle plots (default: 0.2). Or the linewidth
+            of edges in crossplots (default: 0).
         linecolor : str, optional (default: 'black')
             The line color for wiggle plots.
         facecolor : str, optional (default: 'white')
@@ -332,8 +359,9 @@ class SeisPlt():
             Whether to draw a colorbar for image plots.
         colorbarlabel : str, optional (default: None)
             The label (typically indicating units) of the colorbar.
-        colorbarshrink : float, optional (default: 0.4)
-            The vertical scaling factor for the size of the colorbar.
+        colorbarshrink : float, optional (default: 0.4 or 1.0)
+            The vertical scaling factor for the size of the colorbar for image
+            plots (default 0.4) or for crossplots (default: 1.0).
         colorbarfraction: float, optional (default: 0.1)
             The horizontal fraction of the entire figure size that the colorbar
             may use. Default is 10%.
@@ -433,11 +461,102 @@ class SeisPlt():
         degree : bool, optional (default: False)
             Applies to phase spectra only. Whether to display the phase in
             degrees or not; default is a display in radians.
+        smooth : bool, optional (default: False)
+            Smooth the amplitude spectrum using moving average.
+        smoothwindow : float, optional (default: 5*df)
+            The length of the moving average window for smoothing (in Hz).
+        hkey : str (default: None)
+            Header mnemonic to define the horizontal axis of crossplots.
+        vkey : str (default: None)
+            Header mnemonic to define the vertical axis of crossplots.
+        hscale : float, optional (default: 1.0)
+            Scaling factor to apply to the values of hkey.
+        vscale : float, optional (default: 1.0)
+            Scaling factor to apply to the values of vkey.
+        hinvert : bool, optional (default: False)
+            Invert the horizontal axis if True.
+        vinvert : bool, optional (default: False)
+            Invert the vertical axis (default: False)
+        color_by : str, optional (default: None)
+            How to color the points of the crossplot. Either 'None' to use
+            Matplotlib's default, or the name of a single color (e.g., 'red'),
+            or one of the following strings:
+            'header' to color the points based on values of another header
+            mnemonic; 'rms' to color each point by the RMS amplitude value of
+            the corresponding trace; 'mean' to color by the average value of
+            a trace (this allows you to easily spot a trace bias), 'max' to
+            color by a trace's maximum value, 'min' to color by a trace's
+            minimum value, 'median' to color by a trace's median amplitude,
+            or 'fpeak' to color by the peak frequency of the corresponding
+            trace. Obviously, all data-driven color approaches require the
+            actual data to be available, not just pure trace header keys. If
+            color_by is "array", then values can be passed as array using the
+            parameter 'ckey'.
+        ckey : str or Numpy array, optional (default: None)
+            If color_by is 'header', then ckey specifies the header mnemonic
+            to use to color the crossplot points. If color_by is "array", then
+            ckey specifies the values to use to colorize the data. The array
+            must have a length consistent with the number of traces in data.
+        color_norm : str, optional (default: 'linear')
+            The normalization method used to scale scalar data to the [0, 1]
+            range before mapping to colors. Typically a scale name like, for
+            instance, 'linear', 'log', etc. - see Matplotlib's documenatation
+            for valid entries.
+        size_by : str, optional (default: None)
+            The size of each marker can be based on values of another header
+            mnemonic. If so, specify the header mnemonic here.
+        size_scale : float (default: 1.0)
+            The marker size specified by the size_by header is in points**2.
+            The parameter size_scale can be used to scale the values of the
+            header mnemonic 'size_by' to a suitable range.
+        marker : str, optional (default: 'o')
+            The marker style. See Matplotlib's documentation for valid entries.
+        markersize : float, optional (default: None)
+            If a constant marker size is used rather than a variable size based
+            on another header mnemonic (see parameter 'size_by'), the this
+            parameter specifies the size of each marker in points**2.
+        edgecolor : str, optional (default: 'face')
+            The edge color of the marker. By default the edge color is the same
+            as the face color.
+        equal_axes : bool, optional (default: False)
+            Whether to plot horizontal and vertical axes constrained (True) or
+            not consrrained (False).
+        histogram : bool, optional (default: False)
+            Draw a histogram of the color_by values at the top of the crossplot.
+        histogram_colorize : bool, optional (default: True)
+            Colorize the histogram such that each histogram bar has the same
+            color as the value on the chosen colormap.
+        histogram_color : str, optional (default: "gray")
+            The color of the histogram if histogram_colorize is False.
+        histogram_vpos : float, optional (default: 1.08)
+            The vertical position of the histogram in mpl.Axes coordinates.
+            The default of 1.08 leaves a small gap and puts the histogram at
+            the top of the crossplot.
+        histogram_height : float, optional (default: 0.18)
+            The height of the histogram in terms of mpl.Axes coordinates. The
+            default makes the histogram about a fifth in height compared to the
+            crossplot.
+        histogram_hlabel : str, optional (default: "auto")
+            The label at the horizontal axis of the histogram. The default
+            "auto" chooses the label automatically. Set to None in order to
+            have no label at all.
+        histogram_vlabel : str, optional (default: "auto")
+            The label at the vertical axis of the histogram. The default
+            "auto" chooses the label automatically. Set to None in order to
+            have no label at all.
+        histogram_density : bool, optional (default: False)
+            If set to True, the histogram contains the probability density at
+            each bin rather than a count.
+        histogram_bins : int or str, optional (default: "auto")
+            The number of bins. Either an integer specifying the number of bins,
+            or the string "auto" to have the number of bins determined
+            automatically. See numpy.histogram for details on how this is done.
         """
         self._ensemble = data
         self._is_structured = False
-        if self._ensemble.dtype.names is not None:
-            self._is_structured = True
+        if isinstance(self._ensemble, np.ndarray):
+            if self._ensemble.dtype.names is not None:
+                self._is_structured = True
         self._par = _PlotPara()
         self._data = None
         self._parse_para(**kwargs)
@@ -450,7 +569,7 @@ class SeisPlt():
     def _parse_para(self, **kwargs):
         """Parse parameters and initialize variables of PlotPara."""
         self._par.plottype = kwargs.pop("plottype", self._par.plottype).lower()
-        if self._par.plottype not in ["image", "wiggle", "spectrum"]:
+        if self._par.plottype not in ["image", "wiggle", "spectrum", "crossplot"]:
             raise ValueError(f"Unknown value '{self._par.plottype}' for parameter 'plottype'.")
 
         self._par.fig = kwargs.pop("fig", self._par.fig)
@@ -566,18 +685,18 @@ class SeisPlt():
         self._par.ovlaxisbeg = kwargs.pop("overlayaxisbeg", self._par.ovlaxisbeg)
         self._par.ovlaxisend = kwargs.pop("overlayaxisend", self._par.ovlaxisend)
         self._par.overlayinvert = kwargs.pop("overlayinvert", self._par.overlayinvert)
+        self._par.smooth = kwargs.pop("smooth", self._par.smooth)
+        self._par.smoothwindow = kwargs.pop("smoothwindow", self._par.smoothwindow)
+        self._par.window = kwargs.pop("window", self._par.window)
 
         if self._par.plottype == "spectrum":
             if self._par.linewidth is None:
                 self._par.linewidth = 1
             self._par.ampspec = kwargs.pop("amplitude", self._par.ampspec)
             self._par.phaspec = kwargs.pop("phase", self._par.phaspec)
-            self._par.window = kwargs.pop("window", self._par.window)
             self._par.nfft = kwargs.pop("nfft", self._par.nfft)
             self._par.unwrap = kwargs.pop("unwrap", self._par.unwrap)
             self._par.scale = kwargs.pop("scale", self._par.scale).lower()
-            self._par.smooth = kwargs.pop("smooth", self._par.smooth)
-            self._par.smoothwindow = kwargs.pop("smoothwindow", self._par.smoothwindow)
             self._par.fftnorm = kwargs.pop("fftnorm", self._par.fftnorm).lower()
             if self._par.fftnorm not in ["backward", "forward", "ortho"]:
                 raise ValueError(f"Parameter 'fftnorm' ({self._par.fftnorm}) must be 'backward', 'forward' or 'ortho.")
@@ -593,9 +712,58 @@ class SeisPlt():
                     self._par.vaxisend = 0
                 elif self._par.scale == "db" and self._par.vaxisbeg is None:
                     self._par.vaxisbeg = 0
+        elif self._par.plottype == "crossplot":
+            if self._par.linewidth is None:
+                self._par.linewidth = 0
+            if self._par.colormap is None:
+                self._par.colormap = "jet"
+            if self._par.colorbarshrink is None:
+                self._par.colorbarshrink = 1.0
+            self._par.hkey = kwargs.pop("hkey", self._par.hkey)
+            if isinstance(self._par.hkey, str):
+                self._par.hkey = self._par.hkey.lower()
+            if self._par.hkey is None:
+                raise ValueError("Need a header mnemonic 'hkey' to define the horizontal axis.")
+            self._par.vkey = kwargs.pop("vkey", self._par.vkey)
+            if isinstance(self._par.vkey, str):
+                self._par.vkey = self._par.vkey.lower()
+            if self._par.vkey is None:
+                raise ValueError("Need a header mnemonic 'vkey' to define the vertical axis.")
+            self._par.hscale = kwargs.pop("hscale", self._par.hscale)
+            self._par.vscale = kwargs.pop("vscale", self._par.vscale)
+            self._par.color_by = kwargs.pop("color_by", self._par.color_by)
+            if isinstance(self._par.color_by, str):
+                self._par.color_by = self._par.color_by.lower()
+            self._par.ckey = kwargs.pop("ckey", self._par.ckey)
+            if isinstance(self._par.ckey, str):
+                self._par.ckey = self._par.ckey.lower()
+            self._par.size_by = kwargs.pop("size_by", self._par.size_by)
+            if isinstance(self._par.size_by, str):
+                self._par.size_by = self._par.size_by.lower()
+            self._par.size_scale = kwargs.pop("size_scale", self._par.size_scale)
+            self._par.marker = kwargs.pop("marker", self._par.marker)
+            self._par.markersize = kwargs.pop("markersize", self._par.markersize)
+            self._par.edgecolor = kwargs.pop("edgecolor", self._par.edgecolor)
+            self._par.equal_axes = kwargs.pop("equal_axes", self._par.equal_axes)
+            self._par.color_norm = kwargs.pop("color_norm", self._par.color_norm)
+            self._par.hinvert = kwargs.pop("hinvert", self._par.hinvert)
+            self._par.vinvert = kwargs.pop("vinvert", self._par.vinvert)
+            self._par.histogram = kwargs.pop("histogram", self._par.histogram)
+            self._par.histogram_colorize = kwargs.pop("histogram_colorize", self._par.histogram_colorize)
+            self._par.histogram_color = kwargs.pop("histogram_color", self._par.histogram_color)
+            self._par.histogram_vpos = kwargs.pop("histogram_vpos", self._par.histogram_vpos)
+            self._par.histogram_height = kwargs.pop("histogram_height", self._par.histogram_height)
+            self._par.histogram_hlabel = kwargs.pop("histogram_hlabel", self._par.histogram_hlabel)
+            self._par.histogram_vlabel = kwargs.pop("histogram_vlabel", self._par.histogram_vlabel)
+            self._par.histogram_bins = kwargs.pop("histogram_bins", self._par.histogram_bins)
+            self._par.histogram_density = kwargs.pop("histogram_density", self._par.histogram_density)
         else:
             if self._par.linewidth is None:
                 self._par.linewidth = 0.2
+            if self._par.colormap is None:
+                self._par.colormap = "seismic"
+            if self._par.colorbarshrink is None:
+                self._par.colorbarshrink = 0.4
 
         if kwargs:
             for key, val in kwargs.items():
@@ -923,7 +1091,7 @@ class SeisPlt():
                                 pad=self._par.colorbarpad)
             if self._par.colorbarbins is not None:
                 cbar.ax.locator_params(nbins=self._par.colorbarbins)
-        if self._par.colorbarlabel:
+        if self._par.colorbar and self._par.colorbarlabel:
             cbar.ax.set_ylabel(self._par.colorbarlabel,
                                fontsize=self._par.colorbarlabelsize,
                                color=self._par.labelcolor)
@@ -1118,8 +1286,9 @@ class SeisPlt():
         if self._par.window is not None:
             winbuf = self._par.window(ns).astype(np.float64)
         else:
-            winbuf = np.ones(ns, dtype=np.float64)
-        spec = dt*np.fft.rfft(self._data.astype(np.float64)*winbuf, n=self._par.nfft, norm=self._par.fftnorm)
+            winbuf = np.ones(ns, dtype=np.float32)
+        spec = dt*np.fft.rfft(self._data.astype(np.float64)*winbuf,
+                              n=self._par.nfft, norm=self._par.fftnorm)
 
         if self._par.haxisbeg is None:
             self._par.haxisbeg = self._par.haxis[0]
@@ -1132,6 +1301,7 @@ class SeisPlt():
         amp_ = np.abs(spec)
         pha_ = np.angle(spec)
         freq_ = self._par.haxis[mask]
+        del spec
 
         # When A = rfft(a) and fs is the sampling frequency, A[0] contains the
         # zero-frequency term 0*fs, which is real due to Hermitian symmetry.
@@ -1141,6 +1311,7 @@ class SeisPlt():
         # positive frequency (fs/2*(n-1)/n), and is complex in the general case.
 
         if self._par.ampspec:
+            del pha_
             # average over all traces
             amp = np.mean(amp_, axis=0)
             if self._par.smooth:
@@ -1160,6 +1331,7 @@ class SeisPlt():
             self._par.ax.plot(freq_, ampspec[mask], color=self._par.linecolor,
                               lw=self._par.linewidth, label=label)
         else:
+            del amp_
             # DC and Nyquist component have no imaginary part as input is real;
             # explicitly setting phase to zero helps unwrapping later on
             pha_[:, 0] = 0.0
@@ -1180,6 +1352,155 @@ class SeisPlt():
             self._par.fig.savefig(self._par.file, dpi=self._par.dpi, bbox_inches='tight')
 
         return self._par.fig, self._par.ax
+
+    def _crossplot(self):
+        headers = None
+        if self._is_structured:
+            headers = self._ensemble.dtype.names
+            if "data" in headers:
+                self._data = self._ensemble["data"].astype(np.float32)
+            else:
+                self._data = None
+        else:
+            import pandas as pd
+            if not isinstance(self._ensemble, pd.DataFrame):
+                raise RuntimeError("Crossplots need a Numpy structured array (or Pandas dataframe) as input data.")
+            else:
+                self._data = None
+                headers = self._ensemble.columns.tolist()
+
+        if self._par.fig is None and self._par.ax is None:
+            self._setup_figure()
+
+        self._par.ax.set_facecolor(self._par.facecolor)
+
+        if self._par.size_by is not None:
+            if self._par.size_by not in headers:
+                raise ValueError(f"Specified 'size_by={self._par.size_by}' is not a valid header mnemonic.")
+            size = self._ensemble[self._par.size_by] * self._par.size_scale
+        else:
+            size = self._par.markersize
+
+        if self._par.equal_axes:
+            self._par.ax.axes.set_aspect('equal')
+
+        if self._par.hkey not in headers:
+            raise ValueError(f"Specified 'hkey={self._par.hkey}' is not a valid header mnemonic.")
+        if self._par.vkey not in headers:
+            raise ValueError(f"Specified 'vkey={self._par.vkey}' is not a valid header mnemonic.")
+        self._par.haxis = self._ensemble[self._par.hkey] * self._par.hscale
+        self._par.vaxis = self._ensemble[self._par.vkey] * self._par.vscale
+
+        if isinstance(self._par.color_by, str):
+            if self._par.color_by.lower() == "header":
+                if self._par.ckey not in headers:
+                    raise ValueError(f"Specified 'ckey={self._par.ckey}' is not a valid header mnemonic.")
+                color_by = self._ensemble[self._par.ckey]
+            elif self._par.color_by.lower() == "array":
+                if self._par.ckey is None or not isinstance(self._par.ckey, np.ndarray):
+                    raise RuntimeError("Need a Numpy array as 'ckey' to color the requested plot.")
+                else:
+                    color_by = self._par.ckey
+            else:
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
+            if self._par.color_by.lower() == "rms":
+                color_by = np.sqrt(np.mean(self._data**2, axis=-1))
+            elif self._par.color_by.lower() == "mean":
+                color_by = np.mean(self._data, axis=-1)
+            elif self._par.color_by.lower() == "median":
+                color_by = np.median(self._data, axis=-1)
+            elif self._par.color_by.lower() == "min":
+                color_by = np.min(self._data, axis=-1)
+            elif self._par.color_by.lower() == "max":
+                color_by = np.max(self._data, axis=-1)
+            elif self._par.color_by.lower() == "fpeak":
+                nt, ns = self._data.shape
+                dt = self._ensemble[self._par.mnemonic_dt][0] * 1e-6
+                freq = np.fft.rfftfreq(n=ns, d=dt).astype(np.float32)
+                df = freq[1] - freq[0]
+                if self._par.window is not None:
+                    winbuf = self._par.window(ns).astype(np.float32)
+                else:
+                    winbuf = np.ones(ns, dtype=np.float32)
+                amp = np.abs(np.fft.rfft(self._data*winbuf, n=ns, axis=-1))
+                if self._par.smooth:
+                    if self._par.smoothwindow is None:
+                        self._par.smoothwindow = 5*df
+                    nwin = int(self._par.smoothwindow/df)
+                    if nwin < 1:
+                        nwin = 1
+                    ampspec = _mva(amp, nwin)
+                else:
+                    ampspec = amp
+                idx = np.argmax(ampspec, axis=-1).copy()
+                color_by = freq[idx].copy()
+                del ampspec, amp, freq, winbuf
+            if self._par.lowclip is None:
+                self._par.lowclip = np.min(color_by)
+            if self._par.highclip is None:
+                self._par.highclip = np.max(color_by)
+
+        axi = self._par.ax.scatter(x=self._par.haxis, y=self._par.vaxis,
+                                   s=size, marker=self._par.marker, c=color_by,
+                                   alpha=self._par.alpha, cmap=self._par.colormap,
+                                   edgecolors=self._par.edgecolor,
+                                   norm=self._par.color_norm, vmin=self._par.lowclip,
+                                   vmax=self._par.highclip, linewidth=self._par.linewidth,
+                                   label=self._par.label, figure=self._par.fig)
+        self._par.ax.yaxis.set_inverted(self._par.vinvert)
+        self._par.ax.xaxis.set_inverted(self._par.hinvert)
+
+        ax_hist = None
+        if self._par.histogram and isinstance(self._par.color_by, str):
+            ax_hist = self._par.ax.inset_axes([0, self._par.histogram_vpos,
+                                               1, self._par.histogram_height])
+            counts, bins = np.histogram(color_by, bins=self._par.histogram_bins,
+                                        density=self._par.histogram_density)
+            if self._par.histogram_colorize:
+                cmap = plt.get_cmap(name=self._par.colormap)
+                norm = Normalize(vmin=self._par.lowclip, vmax=self._par.highclip)
+                c = cmap(norm(bins))
+            else:
+                c = self._par.histogram_color
+            ax_hist.bar(bins[:-1], counts, width=np.diff(bins), color=c)
+            ax_hist.set_xlim(self._par.lowclip, self._par.highclip)
+            if self._par.histogram_vlabel is not None:
+                if self._par.histogram_vlabel.lower() == "auto":
+                    if self._par.histogram_density:
+                        ax_hist.set_ylabel("density")
+                    else:
+                        ax_hist.set_ylabel("count")
+                else:
+                    ax_hist.set_ylabel(self._par.histogram_vlabel)
+            if self._par.histogram_hlabel is not None:
+                if self._par.histogram_hlabel.lower() == "auto":
+                    if self._par.color_by.lower() == "header":
+                        ax_hist.set_xlabel(f"{self._par.ckey}")
+                    elif self._par.color_by.lower() == "rms":
+                        ax_hist.set_xlabel("RMS amplitude")
+                    elif self._par.color_by.lower() == "mean":
+                        ax_hist.set_xlabel("mean amplitude")
+                    elif self._par.color_by.lower() == "median":
+                        ax_hist.set_xlabel("median amplitude")
+                    elif self._par.color_by.lower() == "min":
+                        ax_hist.set_xlabel("minimum amplitude")
+                    elif self._par.color_by.lower() == "max":
+                        ax_hist.set_xlabel("maximum amplitude")
+                    elif self._par.color_by.lower() == "fpeak":
+                        ax_hist.set_xlabel("peak frequency")
+                else:
+                    ax_hist.set_xlabel(self._par.histogram_hlabel)
+
+        self._post_show(axi)
+        if self._par.file is not None:
+            self._par.fig.savefig(self._par.file, dpi=self._par.dpi,
+                                  bbox_inches='tight')
+
+        if ax_hist is not None:
+            return self._par.fig, (self._par.ax, ax_hist)
+        else:
+            return self._par.fig, self._par.ax
 
 
 @jit(nopython=True)

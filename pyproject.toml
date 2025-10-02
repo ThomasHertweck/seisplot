@@ -43,11 +43,18 @@ keywords = [
   "variable-density",
   "variable-area",
   "animation", "spectrum",
-  "amplitude", "phase"
+  "amplitude", "phase",
+  "crossplot", "histogram"
 ]
 
 [project.urls]
 Repository = "https://gitlab.kit.edu/thomas.hertweck/seisplot"
+
+[project.optional-dependencies]
+opt = [
+  "pandas",
+  "numba",
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "seisplot.__version__" }

@@ -1,10 +1,10 @@
 # seisplot
 
-Plotting of seismic data using variable-density or variable-area wiggle displays.
+Plotting of seismic data using variable-density or variable-area wiggle displays. Plotting of amplitude and phase spectra. Creation of animations and crossplots using arbitrary trace header mnemonics.
 
 ## Description
 
-The seisplot module provides a single, highly flexible method *plot()* to display seismic data. Methods *toggle()* and *wipe()* can be used to create animations that can be saved as images or movies. There is also a convenience function called *spectrum()* to display amplitude or phase spectra of seismic data.
+The seisplot module provides a single, highly flexible method *plot()* to display seismic data. Methods *toggle()* and *wipe()* can be used to create animations that can be saved as images or movies. Method *spectrum()* can be used to display amplitude and phase spectra of seismic data. Method *crossplot()* can be used to plot one trace header mnemonic against another one, possibly colored by a third mnemonic. All methods are highly flexible and displays can be easily adjusted via optional parameters.
 
 The module was designed to get decent displays of seismic data in a way that is more convenient than going through many individual Matplotlib function calls explicitly. However, if required Matplotlib methods can also be called directly. The code is pure Python and kept deliberately simple to get students participating our Geophysics classes and exercises at university going with Python and seismic data.
 
@@ -16,6 +16,8 @@ The module was designed to get decent displays of seismic data in a way that is 
 * Animated toggles between two or more seismic image plots.
 * Animated wipes between two seismic image plots.
 * Amplitude or phase spectrum plots.
+* Crossplots of arbitrary trace header mnemonics, including histograms.
+* Special colormaps.
 
 <p align="center">
 ![Image plot](img/img1.png "Variable-density image plot")
@@ -25,7 +27,7 @@ The module was designed to get decent displays of seismic data in a way that is 
 ![Toggle plot](img/img5.png "Toggle of image plots")
 ![Wipe plot](img/img6.png "Wipe of image plots")
 ![Spectrum plot](img/img7.png "Spectrum of Ricker wavelet")
-
+![Crossplot](img/img8.png "Crossplot colored by RMS amplitude")
 </p>
 
 ## Getting Started
@@ -33,6 +35,8 @@ The module was designed to get decent displays of seismic data in a way that is 
 ### Dependencies
 
 Required: numpy, matplotlib
+
+Optional: pandas (if trace headers for crossplots are stored in DataFrames), numba
 
 ### Installation
 
@@ -106,14 +110,23 @@ fig, ax = seisplot.spectrum(data, amplitude=True, window=win, scale="dB",
                             hlabel="Frequency (Hz)", vlabel="Magnitude (dB)",
                             vgrid="major", hgrid="major")
 ```
-A phase spectrum could be obtained in the following way:
+Here, a Hamming window is applied to the data before performing the Fourier transform, and the amplitude spectrum is converted to "dB" before being plotted. An unwrapped phase spectrum displayed in degrees could be obtained in the following way:
 ```
 fig, ax = seisplot.spectrum(data, phase=True, unwrap=True, degree=True,
                             hlabel="Frequency (Hz)", vlabel="Phase (deg)",
                             linewidth=2, title="Unwrapped phase spectrum")
 ```
-These methods produce similar results to Matplotlib's *magnitude_spectrum()*, *phase_spectrum()* and *angle_spectrum()* functions but have more options. In case of entire gathers, the spectrum is averaged 
-over all traces.
+These methods produce similar results to Matplotlib's *magnitude_spectrum()*, *phase_spectrum()* and *angle_spectrum()* functions but have more options. In case of entire gathers, the spectrum is averaged over all traces.
+
+The following shows an exemplary command to create a crossplot of inline vs. crossline colored by the total statics value of each trace  stored in the trace header "tstat".
+```
+fig, ax = seisplot.crossplot(data, hkey="xline", vkey="iline",
+                             color_by="header", ckey="tstat",
+                             hlabel="Crossline #", vlabel="Inline #",
+                             markersize=5, equal_axes=True, colorbar=True,
+                             colorbarlabel="Total statics (ms)")
+```
+As can be seen, all methods of seisplot use a similar syntax, which makes using this module quite convenient. Under the hood the different methods actually share most of the code.
 
 ## Main author
 
@@ -123,7 +136,7 @@ Dr. Thomas Hertweck, geophysics@email.de
 
 If you use the "seisplot" module and you find it useful, getting some feedback would be very much appreciated. If you would like to cite this module, please use, for instance:
 ```
-Hertweck, T. (2025). seisplot: A Python library for visualisation of seismic data. Version 1.3.0. url: https://gitlab.kit.edu/thomas.hertweck/seisplot/ (visited on 09/18/2025).
+Hertweck, T. (2025). seisplot: A Python library for visualisation of seismic data. Version 1.4.0. url: https://gitlab.kit.edu/thomas.hertweck/seisplot/ (visited on 10/04/2025).
 ```
 Adjust year, version and last visited date as required. Here's a BibTeX entry:
 ```
@@ -132,8 +145,8 @@ Adjust year, version and last visited date as required. Here's a BibTeX entry:
   year    = {2025},
   title   = {seisplot: A {P}ython library for visualisation of seismic data},
   url     = {https://gitlab.kit.edu/thomas.hertweck/seisplot/},
-  urldate = {2025-09-18},
-  version = {1.3.0}
+  urldate = {2025-10-04},
+  version = {1.4.0}
 }
 ```
 
