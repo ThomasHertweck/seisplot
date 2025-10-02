@@ -20,6 +20,7 @@ The module was designed to get decent displays of seismic data in a way that is 
 * Special colormaps.
 
 <p align="center">
+
 ![Image plot](./img/img1.png)
 ![Wiggle plot](./img/img2.png)
 ![Velocity plot](./img/img3.png)
@@ -28,6 +29,7 @@ The module was designed to get decent displays of seismic data in a way that is 
 ![Wipe plot](./img/img6.png)
 ![Spectrum plot](./img/img7.png)
 ![Crossplot](./img/img8.png)
+
 </p>
 
 ## Getting Started
