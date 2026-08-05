@@ -500,7 +500,7 @@ class SeisPlt():
         color_norm : str, optional (default: 'linear')
             The normalization method used to scale scalar data to the [0, 1]
             range before mapping to colors. Typically a scale name like, for
-            instance, 'linear', 'log', etc. - see Matplotlib's documenatation
+            instance, 'linear', 'log', etc. - see Matplotlib's documentation
             for valid entries.
         size_by : str, optional (default: None)
             The size of each marker can be based on values of another header
@@ -737,6 +737,8 @@ class SeisPlt():
             self._par.ckey = kwargs.pop("ckey", self._par.ckey)
             if isinstance(self._par.ckey, str):
                 self._par.ckey = self._par.ckey.lower()
+            if self._par.color_by is not None and "header" in self._par.color_by and self._par.ckey is None:
+                    raise ValueError("Need a header mnemonic 'ckey' to color values.")
             self._par.size_by = kwargs.pop("size_by", self._par.size_by)
             if isinstance(self._par.size_by, str):
                 self._par.size_by = self._par.size_by.lower()
@@ -1353,6 +1355,12 @@ class SeisPlt():
 
         return self._par.fig, self._par.ax
 
+    def _set_clip(self, color_by):
+        if self._par.lowclip is None:
+            self._par.lowclip = np.min(color_by)
+        if self._par.highclip is None:
+            self._par.highclip = np.max(color_by)
+
     def _crossplot(self):
         headers = None
         if self._is_structured:
@@ -1393,27 +1401,33 @@ class SeisPlt():
 
         if isinstance(self._par.color_by, str):
             if self._par.color_by.lower() == "header":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 if self._par.ckey not in headers:
                     raise ValueError(f"Specified 'ckey={self._par.ckey}' is not a valid header mnemonic.")
                 color_by = self._ensemble[self._par.ckey]
+                self._set_clip(color_by)
             elif self._par.color_by.lower() == "array":
                 if self._par.ckey is None or not isinstance(self._par.ckey, np.ndarray):
                     raise RuntimeError("Need a Numpy array as 'ckey' to color the requested plot.")
                 else:
                     color_by = self._par.ckey
-            else:
-                if self._data is None:
-                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
-            if self._par.color_by.lower() == "rms":
+                    self._set_clip(color_by)
+            elif self._par.color_by.lower() == "rms":
                 color_by = np.sqrt(np.mean(self._data**2, axis=-1))
+                self._set_clip(color_by)
             elif self._par.color_by.lower() == "mean":
                 color_by = np.mean(self._data, axis=-1)
+                self._set_clip(color_by)
             elif self._par.color_by.lower() == "median":
                 color_by = np.median(self._data, axis=-1)
+                self._set_clip(color_by)
             elif self._par.color_by.lower() == "min":
                 color_by = np.min(self._data, axis=-1)
+                self._set_clip(color_by)
             elif self._par.color_by.lower() == "max":
                 color_by = np.max(self._data, axis=-1)
+                self._set_clip(color_by)
             elif self._par.color_by.lower() == "fpeak":
                 nt, ns = self._data.shape
                 dt = self._ensemble[self._par.mnemonic_dt][0] * 1e-6
@@ -1435,11 +1449,10 @@ class SeisPlt():
                     ampspec = amp
                 idx = np.argmax(ampspec, axis=-1).copy()
                 color_by = freq[idx].copy()
+                self._set_clip(color_by)
                 del ampspec, amp, freq, winbuf
-            if self._par.lowclip is None:
-                self._par.lowclip = np.min(color_by)
-            if self._par.highclip is None:
-                self._par.highclip = np.max(color_by)
+            else:
+                color_by = self._par.color_by
 
         axi = self._par.ax.scatter(x=self._par.haxis, y=self._par.vaxis,
                                    s=size, marker=self._par.marker, c=color_by,
