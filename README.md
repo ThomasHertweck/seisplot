@@ -144,11 +144,11 @@ Adjust year, version and last visited date as required. Here's a BibTeX entry:
 ```
 @software{seisplot,
   author  = {Hertweck, Thomas},
-  year    = {2025},
+  year    = {2026},
   title   = {seisplot: A {P}ython library for visualisation of seismic data},
   url     = {https://gitlab.kit.edu/thomas.hertweck/seisplot/},
-  urldate = {2025-10-04},
-  version = {1.4.0}
+  urldate = {2026-08-09},
+  version = {1.4.1}
 }
 ```
 
