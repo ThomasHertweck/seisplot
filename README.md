@@ -21,14 +21,14 @@ The module was designed to get decent displays of seismic data in a way that is 
 
 <p align="center">
 
-![Image plot](./img/img1.png)
-![Wiggle plot](./img/img2.png)
-![Velocity plot](./img/img3.png)
-![Fielddata plot](./img/img4.png)
-![Toggle plot](./img/img5.png)
-![Wipe plot](./img/img6.png)
-![Spectrum plot](./img/img7.png)
-![Crossplot](./img/img8.png)
+![Image plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img1.png)
+![Wiggle plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img2.png)
+![Velocity plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img3.png)
+![Fielddata plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img4.png)
+![Toggle plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img5.png)
+![Wipe plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img6.png)
+![Spectrum plot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img7.png)
+![Crossplot](https://gitlab.kit.edu/thomas.hertweck/seisplot/-/raw/master/img/img8.png)
 
 </p>
 

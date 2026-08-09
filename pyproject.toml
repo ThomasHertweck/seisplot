@@ -60,9 +60,8 @@ opt = [
 version = { attr = "seisplot.__version__" }
 
 [tool.setuptools]
-include-package-data = true
-
+include-package-data = false
 package-dir = { "" = "./" }
 
-[tool.setuptools.package-data]
-"img" = [ "*.png" ]
+[tool.setuptools.packages.find]
+exclude = ["img*"]
