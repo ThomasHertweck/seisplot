@@ -1401,8 +1401,6 @@ class SeisPlt():
 
         if isinstance(self._par.color_by, str):
             if self._par.color_by.lower() == "header":
-                if self._data is None:
-                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 if self._par.ckey not in headers:
                     raise ValueError(f"Specified 'ckey={self._par.ckey}' is not a valid header mnemonic.")
                 color_by = self._ensemble[self._par.ckey]
@@ -1414,21 +1412,33 @@ class SeisPlt():
                     color_by = self._par.ckey
                     self._set_clip(color_by)
             elif self._par.color_by.lower() == "rms":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 color_by = np.sqrt(np.mean(self._data**2, axis=-1))
                 self._set_clip(color_by)
             elif self._par.color_by.lower() == "mean":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 color_by = np.mean(self._data, axis=-1)
                 self._set_clip(color_by)
             elif self._par.color_by.lower() == "median":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 color_by = np.median(self._data, axis=-1)
                 self._set_clip(color_by)
             elif self._par.color_by.lower() == "min":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 color_by = np.min(self._data, axis=-1)
                 self._set_clip(color_by)
             elif self._par.color_by.lower() == "max":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 color_by = np.max(self._data, axis=-1)
                 self._set_clip(color_by)
             elif self._par.color_by.lower() == "fpeak":
+                if self._data is None:
+                    raise RuntimeError("Need a structured array with data values to color the requested plot.")
                 nt, ns = self._data.shape
                 dt = self._ensemble[self._par.mnemonic_dt][0] * 1e-6
                 freq = np.fft.rfftfreq(n=ns, d=dt).astype(np.float32)
