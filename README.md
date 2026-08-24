@@ -138,7 +138,7 @@ Dr. Thomas Hertweck, geophysics@email.de
 
 If you use the "seisplot" module and you find it useful, getting some feedback would be very much appreciated. If you would like to cite this module, please use, for instance:
 ```
-Hertweck, T. (2025). seisplot: A Python library for visualisation of seismic data. Version 1.4.0. url: https://gitlab.kit.edu/thomas.hertweck/seisplot/ (visited on 10/04/2025).
+Hertweck, T. (2026). seisplot: A Python library for visualisation of seismic data. Version 1.4.2. url: https://gitlab.kit.edu/thomas.hertweck/seisplot/ (visited on 24/08/2026).
 ```
 Adjust year, version and last visited date as required. Here's a BibTeX entry:
 ```
@@ -147,8 +147,8 @@ Adjust year, version and last visited date as required. Here's a BibTeX entry:
   year    = {2026},
   title   = {seisplot: A {P}ython library for visualisation of seismic data},
   url     = {https://gitlab.kit.edu/thomas.hertweck/seisplot/},
-  urldate = {2026-08-09},
-  version = {1.4.1}
+  urldate = {2026-08-24},
+  version = {1.4.2}
 }
 ```
 
